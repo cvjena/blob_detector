@@ -11,8 +11,8 @@ class BinarizerType(enum.Enum):
     otsu = OtsuTresholder
 
 
-def new_binarizer(bin_type: BinarizerType, *args, **kwargs):
-    assert isinstance(bin_type, BinarizerType), \
-        f"unknown binarizer type: {bin_type}"
+def new(type: BinarizerType, *args, **kwargs):
+    assert isinstance(type, BinarizerType), \
+        f"unknown binarizer type: {type}"
 
-    return bin_type.value(*args, **kwargs)
+    return type.value(*args, **kwargs)

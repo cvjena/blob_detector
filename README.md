@@ -1,9 +1,17 @@
-# blob_detector
+# Blob Detector
 
 Clone me with `git clone gogs@triton.inf-cv.uni-jena.de:AMMOD/blob_detector.git`
 
 ## Description
 Blob detection algorithms for insects on a single-color (white) screen.
+
+## Installation
+
+```bash
+conda create -n detector python~=3.9.0 opencv~=4.5.0
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
 ## Licence
 This work is licensed under a

@@ -35,8 +35,7 @@ class Detector:
 
     def __call__(self, im: np.ndarray):
 
-        imgs, final_res = self._pipeline(im)
-
-        im0, im1, bin_im, post_bin_im, *_ = imgs
+        im0, im1, bin_im, post_bin_im, *_, final_res = \
+            self._pipeline(im, return_all=True)
 
         return (im1, bin_im, post_bin_im), final_res

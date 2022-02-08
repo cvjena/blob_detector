@@ -13,7 +13,7 @@ class Pipeline(object):
     def reset(self):
         self._operations.clear()
 
-    def __call__(self, im: np.ndarray):
+    def __call__(self, im: np.ndarray, return_all: bool = False):
 
         results = []
 
@@ -30,7 +30,11 @@ class Pipeline(object):
 
             results.append(res)
 
-        return results, res
+        if return_all:
+            return results
+
+        else:
+            return results[-1]
 
 
     def rescale(self, **kwargs):

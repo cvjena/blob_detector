@@ -15,9 +15,7 @@ class HighPassTresholder(base.BaseThresholder):
 
     def threshold(self, im: np.ndarray) -> base.ThreshReturn:
 
-        edges, gaussIm = utils._high_pass(im,
-            sigma=(self._window_size - 1)/4,
-            return_low_pass=True)
+        edges = utils._high_pass(im, sigma=(self._window_size - 1)/4)
 
         if self._sigma >= 1:
             edges = utils._gaussian(edges, sigma=self._sigma)

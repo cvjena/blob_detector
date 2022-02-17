@@ -38,31 +38,37 @@ class Pipeline(object):
 
 
     def rescale(self, **kwargs):
-        self._operations.append(img_proc.Rescaler(**kwargs))
-        return self
+        op = img_proc.Rescaler(**kwargs)
+        return self.add_operation(op)
 
     def preprocess(self, **kwargs):
-        self._operations.append(img_proc.Preprocessor(**kwargs))
-        return self
+        op = img_proc.Preprocessor(**kwargs)
+        return self.add_operation(op)
 
     def binarize(self, **kwargs):
-        self._operations.append(binarizers.new(**kwargs))
-        return self
+        op = binarizers.new(**kwargs)
+        return self.add_operation(op)
 
     def open_close(self, **kwargs):
-        self._operations.append(img_proc.MorphologicalOps(**kwargs))
-        return self
+        op = img_proc.MorphologicalOps(**kwargs)
+        return self.add_operation(op)
 
     def remove_border(self, **kwargs):
-        self._operations.append(img_proc.BorderRemoval(**kwargs))
-        return self
+        op = img_proc.BorderRemoval(**kwargs)
+        return self.add_operation(op)
 
     def detect(self, **kwargs):
-        self._operations.append(bbox_proc.Detector(**kwargs))
-        return self
+        op = bbox_proc.Detector(**kwargs)
+        return self.add_operation(op)
 
     def bbox_filter(self, **kwargs):
-        self._operations.append(bbox_proc.BBoxFilter(**kwargs))
+        op = bbox_proc.BBoxFilter(**kwargs)
+        return self.add_operation(op)
+
+    def add_operation(self, op):
+        assert callable(op), f"{op} was not callable!"
+        self._operations.append(op)
         return self
+
 
 

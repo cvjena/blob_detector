@@ -66,3 +66,14 @@ class MorphologicalOps:
             im = cv2.dilate(im, kernel, iterations=self.iterations)
 
         return im
+
+class BorderRemoval:
+
+    def __init__(self, *, area_thresh: float = 0.5):
+        super().__init__()
+        self.area_thresh = area_thresh
+
+    def __call__(self, im: np.ndarray):
+
+        res = utils._mask_border(im, area_thresh=self.area_thresh)
+        return res

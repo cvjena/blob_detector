@@ -53,6 +53,10 @@ class Pipeline(object):
         self._operations.append(img_proc.MorphologicalOps(**kwargs))
         return self
 
+    def remove_border(self, **kwargs):
+        self._operations.append(img_proc.BorderRemoval(**kwargs))
+        return self
+
     def detect(self, **kwargs):
         self._operations.append(bbox_proc.Detector(**kwargs))
         return self

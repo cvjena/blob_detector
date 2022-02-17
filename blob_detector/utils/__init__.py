@@ -37,7 +37,9 @@ def _mask_border(im: np.ndarray, area_thresh: float = 0.50) -> None:
         # here we have a mask with 1's inside the contour
         cv2.drawContours(mask, [hull], 0, color=1, thickness=-1)
 
-        im[:] = im * mask
+        return im * mask
+
+    return im
 
 def _gaussian(im: np.ndarray, sigma: float = 5.0):
     return filters.gaussian(im, sigma=sigma, preserve_range=True).astype(im.dtype)

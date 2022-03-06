@@ -4,6 +4,7 @@ import numpy as np
 from scipy import stats
 
 from blob_detector import utils
+from blob_detector.core.binarizers import BinarizerType
 
 
 class Detector:
@@ -72,6 +73,78 @@ class BBoxFilter:
         bboxes = _enlarge(bboxes, factor)
 
         return bboxes, inds2, means_stds
+
+class Splitter:
+
+    def __init__(self, preproc, detector):
+        super().__init__()
+        self._im = None
+
+        self.preproc = preproc
+        self.preproc.rescale(min_size=150, min_scale=-1)
+        self.preproc.preprocess(equalize=True, sigma=3)
+        self.preproc.binarize(type=BinarizerType.high_pass,
+                              window_size=30, sigma=5)
+
+        self.preproc.open_close(kernel_size=5, iterations=3)
+
+        self.detector = detector.detect()
+
+
+    def set_image(self, im: np.ndarray):
+        self._im = im
+        return im
+
+    def split(self, im: np.ndarray, bboxes):
+
+        n_cols = int(np.ceil(np.sqrt(len(bboxes))))
+        n_rows = int(np.ceil(len(bboxes) / n_cols))
+        result = []
+
+        for i, bbox in enumerate(bboxes):
+            (X0, Y0), (X1, Y1) = bbox
+
+            orig_crop = self.crop(im, bbox)
+            # print(orig_crop.shape, self._im.shape)
+            im0 = self.preproc(orig_crop)
+
+            _, new_bboxes = self.detector(im0)
+
+            H, W = Y1 - Y0, X1 - X0
+            h, w = im0.shape
+
+            area = (W / im.shape[1]) * (H / im.shape[0])
+            if area >= 0.5:
+                # we dont want to split too big boxes
+                result.append(bbox)
+                continue
+
+            for (x0, y0), (x1, y1) in new_bboxes:
+                rel_x0, rel_x1 = x0 / w, x1 / w
+                rel_y0, rel_y1 = y0 / h, y1 / h
+
+                xy0 = utils.int_tuple([W * rel_x0 + X0, H * rel_y0 + Y0])
+                xy1 = utils.int_tuple([W * rel_x1 + X0, H * rel_y1 + Y0])
+
+                result.append((xy0, xy1))
+
+            else: # if there were no new boxes
+                result.append(bbox)
+
+        # reset the image attribute
+        self._im = None
+        return im, result
+
+    def crop(self, im, bbox):
+        assert self._im is not None
+        (x0,y0), (x1,y1) = bbox
+
+        _h, _w = im.shape
+        rel_bbox = (x0 / _w, y0 / _h), (x1 / _w, y1 / _h)
+        (x0,y0), (x1,y1) = rel_bbox
+        h, w = self._im.shape
+        return self._im[int(y0*h):int(y1*h), int(x0*w):int(x1*w)]
+
 
 #### bbox operations
 

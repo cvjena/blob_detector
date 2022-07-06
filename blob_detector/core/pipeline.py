@@ -22,7 +22,7 @@ class Pipeline(object):
             if isinstance(res, (tuple, list)):
                 res = op(*res)
 
-            elif isinstance(im, (dict)):
+            elif isinstance(res, (dict)):
                 res = op(**res)
 
             else:

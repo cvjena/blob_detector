@@ -65,10 +65,18 @@ class Pipeline(object):
         op = bbox_proc.BBoxFilter(**kwargs)
         return self.add_operation(op)
 
+    def split_bboxes(self, **kwargs):
+        op = bbox_proc.Splitter(**kwargs)
+        return self.add_operation(op)
+
+    def score(self, **kwargs):
+        op = bbox_proc.ScoreEstimator(**kwargs)
+        return self.add_operation(op)
+
     def add_operation(self, op):
         assert callable(op), f"{op} was not callable!"
         self._operations.append(op)
-        return self
+        return self, op
 
 
 

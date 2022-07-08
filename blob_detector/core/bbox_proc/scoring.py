@@ -12,9 +12,13 @@ VIS = False
 class ScoreEstimator(ImageSetter):
 
 
-    def __call__(self, im: np.ndarray, bboxes: T.List[BBox], idxs, bbox_stats):
+    def __call__(self, im: np.ndarray, bboxes: T.List[BBox], idxs=None, bbox_stats=None):
         global VIS
         self._check_image()
+
+        if idxs is None:
+            idxs = np.arange(len(bboxes))
+
         # return [bboxes[i] for i in idxs], None, None
 
         if VIS:

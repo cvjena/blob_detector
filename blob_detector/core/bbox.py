@@ -11,6 +11,10 @@ except ImportError as e:
 
 
 class BBox(T.NamedTuple):
+    VALID_RATIO = 0.1
+    MIN_AREA = 4e-4
+    MAX_AREA = 1/9
+
     x0: float
     y0: float
     x1: float
@@ -40,6 +44,12 @@ class BBox(T.NamedTuple):
     def ratio(self):
         return min(self.size) / max(self.size)
 
+    def _new(self, x0, y0, x1, y1) -> BBox:
+        return self._replace(
+            x0=x0, y0=y0,
+            x1=x1, y1=y1,
+        )
+
     def __check_xy(self, xy) -> T.Tuple[float, float]:
         xy: T.Union[T.Tuple, T.List, float, int]
         if isinstance(xy, (tuple, list)):
@@ -53,11 +63,22 @@ class BBox(T.NamedTuple):
 
         return x, y
 
+    def __sub__(self, xy: T.Union[T.Tuple, T.List, float, int]) -> BBox:
+        """ translate the bounding box by x and y """
+        x, y = self.__check_xy(xy)
+
+        return self._new(
+            x0=self.x0 - x, y0=self.y0 - y,
+            x1=self.x1 - x, y1=self.y1 - y,
+        )
+
+    __rsub__ = __sub__
+
     def __add__(self, xy: T.Union[T.Tuple, T.List, float, int]) -> BBox:
         """ translate the bounding box by x and y """
         x, y = self.__check_xy(xy)
 
-        return self._replace(
+        return self._new(
             x0=self.x0 + x, y0=self.y0 + y,
             x1=self.x1 + x, y1=self.y1 + y,
         )
@@ -68,12 +89,34 @@ class BBox(T.NamedTuple):
         """ scale the bounding box by x and y """
         x, y = self.__check_xy(xy)
 
-        return self._replace(
+        return self._new(
             x0=self.x0 * x, y0=self.y0 * y,
             x1=self.x1 * x, y1=self.y1 * y,
         )
 
     __rmul__ = __mul__
+
+    def __truediv__(self, xy: T.Union[T.Tuple, T.List, float, int]) -> BBox:
+        """ scale the bounding box by x and y """
+        x, y = self.__check_xy(xy)
+
+        return self._new(
+            x0=self.x0 / x, y0=self.y0 / y,
+            x1=self.x1 / x, y1=self.y1 / y,
+        )
+
+    __rtruediv__ = __truediv__
+
+    def enlarge(self, xy: T.Union[T.Tuple, T.List, float, int]) -> BBox:
+        """ enlarge the bounding box by x and y """
+        x, y = self.__check_xy(xy)
+        if x <= 0 and y <= 0:
+            return self
+
+        return self._new(
+            x0=self.x0 - x, y0=self.y0 - y,
+            x1=self.x1 + x, y1=self.y1 + y,
+        )
 
     def __call__(self, im: np.ndarray):
         """
@@ -87,10 +130,15 @@ class BBox(T.NamedTuple):
         # translate from relative coordinates to pixel
         # coordinates for the given image
 
-        x0, x1 = int(x0 * W), int(x1 * W)
-        y0, y1 = int(y0 * H), int(y1 * H)
+        x0, x1 = max(int(x0 * W), 0), min(int(x1 * W), W)
+        y0, y1 = max(int(y0 * H), 0), min(int(y1 * H), H)
 
         return x0, y0, x1, y1
+
+    @property
+    def is_valid(self):
+        return self.ratio >= BBox.VALID_RATIO and \
+            BBox.MIN_AREA <= self.area <= BBox.MAX_AREA
 
     def crop(self, im: np.ndarray, enlarge: bool = True):
 
@@ -109,16 +157,6 @@ class BBox(T.NamedTuple):
 
         return im[y0:y1, x0:x1]
 
-    def enlarge(self, value: float):
-        if value <= 0:
-            return self
-
-        return self._replace(
-            x0=max(self.x0 - enlarge, 0),
-            y0=max(self.y0 - enlarge, 0),
-            x1=min(self.x1 + enlarge, 1),
-            y1=min(self.y1 + enlarge, 1),
-        )
 
     def plot(self, im: np.ndarray, ax: T.Optional[plt.Axis] = None, **kwargs) -> plt.Axis:
         global HAS_PYPLOT, PYPLOT_ERROR
@@ -132,4 +170,16 @@ class BBox(T.NamedTuple):
         ax.add_patch(rect)
         return ax
 
+    def tiles(self, nx: int, ny: int) -> T.List[BBox]:
+
+        tile_w = self.w / nx
+        tile_h = self.h / ny
+
+        tiles = []
+        for x0 in np.arange(self.x0, self.x1, tile_w):
+            for y0 in np.arange(self.y0, self.y1, tile_h):
+                x1, y1 = x0 + tile_w, y0 + tile_h
+                tiles.append(BBox(x0, y0, x1, y1))
+
+        return tiles
 

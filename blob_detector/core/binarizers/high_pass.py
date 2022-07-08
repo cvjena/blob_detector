@@ -25,4 +25,4 @@ class HighPassTresholder(base.BaseThresholder):
         bin_im = (edges <= thresh) * 255
         bin_im = bin_im.astype(np.uint8)
 
-        return thresh, bin_im
+        return base.ThreshReturn(thresh=thresh, bin_im=bin_im)

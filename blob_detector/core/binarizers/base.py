@@ -4,7 +4,9 @@ import typing as T
 
 from blob_detector import utils
 
-ThreshReturn = T.Tuple[float, T.Optional[np.ndarray]]
+class ThreshReturn(T.NamedTuple):
+    thresh: float
+    bin_im: T.Optional[np.ndarray] = None
 
 class BaseThresholder(abc.ABC):
 
@@ -25,4 +27,4 @@ class BaseThresholder(abc.ABC):
 
     @abc.abstractmethod
     def threshold(self, im: np.ndarray) -> ThreshReturn:
-        pass
+        return ThreshReturn(0.0)

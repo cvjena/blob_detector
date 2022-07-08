@@ -18,4 +18,4 @@ class OtsuTresholder(base.BaseThresholder):
         	thresh = filters.threshold_otsu(im)
         	bin_im = None
 
-        return thresh, bin_im
+        return base.ThreshReturn(thresh=thresh, bin_im=bin_im)

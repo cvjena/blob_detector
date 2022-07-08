@@ -26,4 +26,4 @@ class GaussLocalTresholder(base.BaseThresholder):
                                          block_size=block_size,
                                          mode="constant",
                                         )
-        return thresh, None
+        return base.ThreshReturn(thresh=thresh)

@@ -15,6 +15,7 @@ class ScoreEstimator(ImageSetter):
     def __call__(self, im: np.ndarray, bboxes: T.List[BBox], idxs, bbox_stats):
         global VIS
         self._check_image()
+        # return [bboxes[i] for i in idxs], None, None
 
         if VIS:
             fig0, ax0 = plt.subplots()
@@ -33,7 +34,6 @@ class ScoreEstimator(ImageSetter):
         labels = None
         for c, idx in enumerate(idxs):
             bbox = bboxes[idx]
-            # (mean, std, N, ttest_res) = bbox_stats[idx]
             crop = bbox.crop(self._im, enlarge=False)
 
             if VIS:
@@ -41,11 +41,7 @@ class ScoreEstimator(ImageSetter):
 
                 ax = axs[np.unravel_index(c*2, axs.shape)]
                 ax.imshow(crop, cmap=plt.cm.gray, alpha=0.7)
-
-            # self_corr = _correlate(crop, crop, normalize=False)
-            # print(self_corr)
-            # if VIS:
-            #     ax.imshow(self_corr, cmap=plt.cm.jet, alpha=0.3)
+                # ax.imshow(self_corr, cmap=plt.cm.jet, alpha=0.3)
 
             h, w, *_ = crop.shape
             H, W, *_ = self._im.shape

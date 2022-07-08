@@ -238,8 +238,9 @@ class ScoreEstimator(ImageSetter):
                 ax.imshow(crop, cmap=plt.cm.gray, alpha=0.7)
 
             # self_corr = _correlate(crop, crop, normalize=False)
-            # # print(self_corr)
-            # ax.imshow(self_corr, cmap=plt.cm.jet, alpha=0.3)
+            # print(self_corr)
+            # if VIS:
+            #     ax.imshow(self_corr, cmap=plt.cm.jet, alpha=0.3)
 
             h, w, *_ = crop.shape
             H, W, *_ = self._im.shape

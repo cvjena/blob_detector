@@ -163,8 +163,8 @@ class Splitter(ImageSetter):
 class BBoxFilter(ImageSetter):
 
     def __init__(self, *,
-                 score_treshold: float = 0.99,
-                 nms_threshold: float = 0.1,
+                 score_treshold: float = 0.5,
+                 nms_threshold: float = 0.3,
 
                  enlarge: float = 0.01,
                 ) -> None:
@@ -180,7 +180,7 @@ class BBoxFilter(ImageSetter):
         _im = self._im.astype(np.float64) / 255.
 
         integral_im = IntegralImage(_im)
-        bbox_stats = [integral_im.ttest(bbox) for bbox in bboxes]
+        bbox_stats = [integral_im.stats(bbox) for bbox in bboxes]
 
         _bboxes = [[bbox.x0, bbox.y0, bbox.w, bbox.h] for bbox in bboxes]
 

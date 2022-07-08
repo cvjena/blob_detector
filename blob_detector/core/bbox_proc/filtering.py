@@ -11,14 +11,14 @@ from blob_detector.core.bbox_proc.base import IntegralImage
 class BBoxFilter(ImageSetter):
 
     def __init__(self, *,
-                 score_treshold: float = 0.5,
+                 score_threshold: float = 0.5,
                  nms_threshold: float = 0.3,
 
                  enlarge: float = 0.01,
                 ) -> None:
         super().__init__()
 
-        self.score_treshold = score_treshold
+        self.score_threshold = score_threshold
         self.nms_threshold = nms_threshold
         self.enlarge = enlarge
 
@@ -34,7 +34,7 @@ class BBoxFilter(ImageSetter):
 
         inds = cv2.dnn.NMSBoxes(_bboxes,
                             scores=np.ones(len(_bboxes), dtype=np.float32),
-                            score_threshold=self.score_treshold,
+                            score_threshold=self.score_threshold,
                             nms_threshold=self.nms_threshold,
                            )
 

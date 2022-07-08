@@ -1,4 +1,5 @@
 import numpy as np
+import typing as T
 
 from blob_detector.core import img_proc
 from blob_detector.core import bbox_proc
@@ -6,16 +7,21 @@ from blob_detector.core import binarizers
 
 
 class Pipeline(object):
-    def __init__(self):
+    def __init__(self, require_input: T.Optional[T.List[T.Callable]] = None):
         super(Pipeline, self).__init__()
         self._operations = []
+        self._require_input = require_input or []
 
     def reset(self):
         self._operations.clear()
+        self._require_input.clear()
 
     def __call__(self, im: np.ndarray, return_all: bool = False):
 
         results = []
+
+        for op in self._require_input:
+            op(im)
 
         res = im
         for op in self._operations:
@@ -35,6 +41,16 @@ class Pipeline(object):
 
         else:
             return results[-1]
+
+    def add_operation(self, op: T.Callable):
+        assert callable(op), f"{op} is not callable!"
+        self._operations.append(op)
+        return self, op
+
+    def requires_input(self, op: T.Callable):
+        assert callable(op), f"{op} is not callable!"
+        self._require_input.append(op)
+        return self, op
 
 
     def rescale(self, **kwargs):
@@ -72,11 +88,6 @@ class Pipeline(object):
     def score(self, **kwargs):
         op = bbox_proc.ScoreEstimator(**kwargs)
         return self.add_operation(op)
-
-    def add_operation(self, op):
-        assert callable(op), f"{op} was not callable!"
-        self._operations.append(op)
-        return self, op
 
 
 

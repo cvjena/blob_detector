@@ -130,8 +130,8 @@ class BBox(T.NamedTuple):
         # translate from relative coordinates to pixel
         # coordinates for the given image
 
-        x0, x1 = max(int(x0 * W), 0), min(int(x1 * W), W)
-        y0, y1 = max(int(y0 * H), 0), min(int(y1 * H), H)
+        x0, x1 = max(int(x0 * (W-1)), 0), min(int(x1 * (W-1)), W)
+        y0, y1 = max(int(y0 * (H-1)), 0), min(int(y1 * (H-1)), H)
 
         return x0, y0, x1, y1
 

@@ -54,3 +54,28 @@ def _high_pass(im: np.ndarray, sigma: float = 5.0, *, return_low_pass: bool = Fa
     high_pass = abs((im - gauss) * max_value).astype(dtype)
 
     return (high_pass, gauss) if return_low_pass else high_pass
+
+
+def _correlate(im1, im2, normalize=True, boundary="symm", mode="same", **kwargs):
+
+    # 0..255 -> 0..1
+    im1 = im1.astype(np.float32) / 255
+    im2 = im2.astype(np.float32) / 255
+
+    mean = (im1.mean() + im2.mean()) / 2
+
+    im1 = im1 - mean
+    im2 = im2 - mean
+
+    ##### OpenCV implementation
+    k_h, k_w, *_ = im2.shape
+
+    _im = np.pad(im1, [(k_h//2, k_h//2-1), (k_w//2, k_w//2-1)], mode="reflect")
+    corr = cv2.matchTemplate(_im, im2, cv2.TM_CCORR)
+
+    if not normalize:
+        return corr
+
+    corr -= corr.min()
+    return corr / corr.max()
+

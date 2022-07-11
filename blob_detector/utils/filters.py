@@ -3,6 +3,9 @@ import numpy as np
 
 from skimage import filters
 
+from blob_detector.utils.base import get_maxvalue
+
+
 def _gaussian(im: np.ndarray, sigma: float = 5.0):
     return filters.gaussian(im, sigma=sigma, preserve_range=True).astype(im.dtype)
 

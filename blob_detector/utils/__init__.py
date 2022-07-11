@@ -1,18 +1,8 @@
 import cv2
 import numpy as np
 
-def int_tuple(values):
-    return tuple(map(int, values))
-
-def get_maxvalue(im: np.ndarray):
-    max_value = { dt().dtype.name: value for dt, value in
-        [(np.uint8, 255),
-        (np.float32, 1.0),
-        (np.float64, 1.0)]
-    }.get(im.dtype.name)
-    assert max_value is not None, f"Unsupported {im.dtype=}"
-    return max_value
-
+from blob_detector.utils.base import get_maxvalue
+from blob_detector.utils.base import int_tuple
 
 def _mask_border(im: np.ndarray, area_thresh: float = 0.50) -> None:
 

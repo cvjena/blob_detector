@@ -69,6 +69,10 @@ class Pipeline(object):
         op = img_proc.MorphologicalOps(**kwargs)
         return self.add_operation(op)
 
+    def find_border(self, **kwargs):
+        op = img_proc.BorderFinder(**kwargs)
+        return self.add_operation(op)
+
     def remove_border(self, **kwargs):
         op = img_proc.BorderRemoval(**kwargs)
         return self.add_operation(op)

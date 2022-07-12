@@ -17,9 +17,7 @@ class Pipeline(object):
         self._operations.clear()
         self._require_input.clear()
 
-    def __call__(self, im: np.ndarray, return_all: bool = False):
-
-        results = []
+    def __call__(self, im: np.ndarray):
 
         for op in self._require_input:
             op(im)
@@ -28,7 +26,6 @@ class Pipeline(object):
         if not isinstance(res, core.ImageWrapper):
             res = core.ImageWrapper(im)
 
-        results.append(res)
         for op in self._operations:
             if isinstance(res, (tuple, list)):
                 res = op(*res)
@@ -39,13 +36,7 @@ class Pipeline(object):
             else:
                 res = op(res)
 
-            results.append(res)
-
-        if return_all:
-            return results
-
-        else:
-            return results[-1]
+        return res
 
     def add_operation(self, op: T.Callable):
         assert callable(op), f"{op} is not callable!"

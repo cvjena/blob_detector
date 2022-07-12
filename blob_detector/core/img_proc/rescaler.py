@@ -16,11 +16,11 @@ class Rescaler:
 
         im = X.im
 
-        H, W = im.shape
+        H, W = X.shape
         _scale = self.min_size / min(H, W)
         scale = max(self.min_scale, min(1, _scale))
         size = int(W * scale), int(H * scale)
 
-        im = cv2.resize(im, dsize=size, interpolation=self.interpolation)
-
-        return core.ImageWrapper(im, parent=X)
+        res = X.copy()
+        res.resize(size, interpolation=self.interpolation)
+        return res

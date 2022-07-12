@@ -13,7 +13,7 @@ class Splitter(ImageSetter):
 
         self.preproc = preproc
         self.preproc.rescale(min_size=300, min_scale=-1)
-        self.preproc.preprocess(equalize=True, sigma=3)
+        self.preproc.preprocess(equalize=True, sigma=1)
         self.preproc.binarize(type=BinarizerType.high_pass,
                               window_size=30, sigma=5)
 

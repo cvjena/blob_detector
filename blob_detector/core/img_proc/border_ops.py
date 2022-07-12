@@ -42,8 +42,8 @@ class BorderFinder:
         border = sorted(contours, key=cv2.contourArea, reverse=True)[0]
         border = cv2.approxPolyDP(border, 100, True)
 
-        mask = np.ones_like(im, dtype=np.float32)
-        cv2.drawContours(mask, [border], -1, 0.0, -1)
+        mask = np.zeros_like(im, dtype=np.float32)
+        cv2.drawContours(mask, [border], -1, 1.0, -1)
 
         if self.pad >= 1:
             im = im[self.pad:-self.pad, self.pad:-self.pad]

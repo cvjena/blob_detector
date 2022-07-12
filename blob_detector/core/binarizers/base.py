@@ -11,8 +11,9 @@ class ThreshReturn(T.NamedTuple):
 
 class BaseThresholder(abc.ABC):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, use_masked: bool = True, **kwargs):
         super().__init__()
+        self._use_masked = use_masked
 
     def __call__(self, X: core.ImageWrapper) -> core.ImageWrapper:
         assert X.im.ndim == 2, "Should be an image with one channel!"

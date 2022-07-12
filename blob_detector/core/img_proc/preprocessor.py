@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 from blob_detector import utils
+from blob_detector.core import ImageWrapper
 
 
 class Preprocessor:
@@ -16,7 +17,9 @@ class Preprocessor:
             self._equalizer = cv2.createCLAHE(
                 clipLimit=2.0, tileGridSize=(10,10))
 
-    def __call__(self, im: np.ndarray):
+    def __call__(self, X: ImageWrapper):
+
+        im = X.im
 
         if self._equalizer is not None:
             im = self._equalizer.apply(im)
@@ -24,4 +27,4 @@ class Preprocessor:
         if self.sigma >= 1:
             im = utils._gaussian(im, self.sigma)
 
-        return im
+        return ImageWrapper(im, parent=X)

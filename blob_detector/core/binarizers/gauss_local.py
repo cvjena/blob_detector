@@ -4,6 +4,7 @@ import numpy as np
 
 from skimage import filters
 
+from blob_detector import core
 from blob_detector.core.binarizers import base
 
 class GaussLocalTresholder(base.BaseThresholder):
@@ -13,7 +14,8 @@ class GaussLocalTresholder(base.BaseThresholder):
         self._do_padding = do_padding
         self._block_size_scale = block_size_scale
 
-    def threshold(self, im: np.ndarray) -> base.ThreshReturn:
+    def threshold(self, X: core.ImageWrapper) -> base.ThreshReturn:
+        im = X.im
         # make block size an odd number
         block_size = min(im.shape) * self._block_size_scale // 2 * 2 + 1
 

@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 from blob_detector import utils
+from blob_detector import core
 
 
 class BorderRemoval:
@@ -10,10 +11,10 @@ class BorderRemoval:
         super().__init__()
         self.area_thresh = area_thresh
 
-    def __call__(self, im: np.ndarray):
+    def __call__(self, X: core.ImageWrapper) -> core.ImageWrapper:
 
-        res = utils._mask_border(im, area_thresh=self.area_thresh)
-        return res
+        res = utils._mask_border(X.im, area_thresh=self.area_thresh)
+        return core.ImageWrapper(res, parent=X)
 
 class BorderFinder:
 
@@ -21,8 +22,9 @@ class BorderFinder:
         self.threshold = threshold
         self.pad = pad
 
-    def __call__(self, im: np.ndarray):
+    def __call__(self, X: core.ImageWrapper) -> core.ImageWrapper:
 
+        im = X.im
         bin_im = np.full_like(im, 255, dtype=np.uint8)
 
         bin_im[im <= self.threshold] = 0.0
@@ -50,4 +52,4 @@ class BorderFinder:
         if self.pad >= 1:
             masked_im = masked_im[self.pad:-self.pad, self.pad:-self.pad]
 
-        return masked_im
+        return core.ImageWrapper(masked_im, parent=X)

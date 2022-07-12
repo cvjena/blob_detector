@@ -1,9 +1,10 @@
 import numpy as np
 import typing as T
 
-from blob_detector.core import img_proc
+from blob_detector import core
 from blob_detector.core import bbox_proc
 from blob_detector.core import binarizers
+from blob_detector.core import img_proc
 
 
 class Pipeline(object):
@@ -24,6 +25,9 @@ class Pipeline(object):
             op(im)
 
         res = im
+        if not isinstance(res, core.ImageWrapper):
+            res = core.ImageWrapper(im)
+
         for op in self._operations:
             if isinstance(res, (tuple, list)):
                 res = op(*res)

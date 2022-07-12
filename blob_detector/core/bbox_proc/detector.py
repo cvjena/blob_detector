@@ -2,13 +2,16 @@ import cv2
 import numpy as np
 import typing as T
 
+from blob_detector import core
 from blob_detector.core.bbox import BBox
 from blob_detector.core.bbox_proc.base import Result
 
 
 class Detector:
 
-    def __call__(self, im: np.ndarray) -> Result:
+    def __call__(self, X: core.ImageWrapper) -> Result:
+
+        im = X.im
 
         contours, hierarchy = cv2.findContours(im, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         contours = sorted(contours, key=cv2.contourArea, reverse=True)

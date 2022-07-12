@@ -4,6 +4,7 @@ import numpy as np
 from skimage.util import view_as_windows
 
 from blob_detector import utils
+from blob_detector import core
 from blob_detector.core.binarizers import base
 
 class HighPassTresholder(base.BaseThresholder):
@@ -13,7 +14,8 @@ class HighPassTresholder(base.BaseThresholder):
         self._window_size = window_size
         self._sigma = sigma
 
-    def threshold(self, im: np.ndarray) -> base.ThreshReturn:
+    def threshold(self, X: core.ImageWrapper) -> base.ThreshReturn:
+        im = X.im
 
         edges = utils._high_pass(im, sigma=(self._window_size - 1)/4)
 

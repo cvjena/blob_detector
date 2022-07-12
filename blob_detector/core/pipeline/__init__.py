@@ -28,6 +28,7 @@ class Pipeline(object):
         if not isinstance(res, core.ImageWrapper):
             res = core.ImageWrapper(im)
 
+        results.append(res)
         for op in self._operations:
             if isinstance(res, (tuple, list)):
                 res = op(*res)

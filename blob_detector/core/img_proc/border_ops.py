@@ -42,14 +42,13 @@ class BorderFinder:
         border = sorted(contours, key=cv2.contourArea, reverse=True)[0]
         border = cv2.approxPolyDP(border, 100, True)
 
-        mask = np.zeros_like(im, dtype=np.float32)
-        cv2.drawContours(mask, [border], -1, 1.0, -1)
-
-        mask = mask.astype(bool)
-        masked_im = im.copy()
-        masked_im[~mask] = 0
+        mask = np.ones_like(im, dtype=np.float32)
+        cv2.drawContours(mask, [border], -1, 0.0, -1)
 
         if self.pad >= 1:
-            masked_im = masked_im[self.pad:-self.pad, self.pad:-self.pad]
+            im = im[self.pad:-self.pad, self.pad:-self.pad]
+            mask = mask[self.pad:-self.pad, self.pad:-self.pad]
 
-        return core.ImageWrapper(masked_im, parent=X)
+        res = X.copy()
+        res.mask = mask
+        return res

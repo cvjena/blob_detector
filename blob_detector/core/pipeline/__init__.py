@@ -24,7 +24,7 @@ class Pipeline(object):
 
         res = im
         if not isinstance(res, core.ImageWrapper):
-            res = core.ImageWrapper(im)
+            res = core.ImageWrapper(im, creator="Input")
 
         for op in self._operations:
             if isinstance(res, (tuple, list)):
@@ -35,6 +35,17 @@ class Pipeline(object):
 
             else:
                 res = op(res)
+
+            if isinstance(res, core.ImageWrapper):
+                name = None
+
+                if hasattr(op, "__name__"):
+                    name = op.__name__
+
+                elif hasattr(op.__class__, "__name__"):
+                    name = op.__class__.__name__
+
+                res.creator = name
 
         return res
 

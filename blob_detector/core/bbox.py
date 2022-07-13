@@ -20,6 +20,13 @@ class BBox(T.NamedTuple):
     x1: float
     y1: float
 
+
+    @property
+    def is_valid(self):
+        return 0 not in self.size and \
+            self.ratio >= BBox.VALID_RATIO and \
+            BBox.MIN_AREA <= self.area <= BBox.MAX_AREA
+
     @property
     def w(self):
         return abs(self.x1 - self.x0)
@@ -135,10 +142,6 @@ class BBox(T.NamedTuple):
 
         return x0, y0, x1, y1
 
-    @property
-    def is_valid(self):
-        return self.ratio >= BBox.VALID_RATIO and \
-            BBox.MIN_AREA <= self.area <= BBox.MAX_AREA
 
     def crop(self, im: np.ndarray, enlarge: bool = True):
 

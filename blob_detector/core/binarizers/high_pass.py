@@ -5,11 +5,11 @@ from blob_detector import utils
 from blob_detector import core
 from blob_detector.core.binarizers import base
 
-class HighPassTresholder(base.BaseThresholder):
 
-    def __init__(self, *, window_size: int = 30, sigma: float = 5.0, **kwargs):
+class HighPassTresholder(base.BaseLocalThresholder):
+
+    def __init__(self, *, sigma: float = 5.0, **kwargs):
         super().__init__(**kwargs)
-        self._window_size = window_size
         self._sigma = sigma
 
     def threshold(self, X: core.ImageWrapper) -> base.ThreshReturn:

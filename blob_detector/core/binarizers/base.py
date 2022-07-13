@@ -11,9 +11,13 @@ class ThreshReturn(T.NamedTuple):
 
 class BaseThresholder(abc.ABC):
 
-    def __init__(self, *args, use_masked: bool = True, **kwargs):
+    def __init__(self, *args,
+                 use_masked: bool = True,
+                 use_cv2: bool = False,
+                 **kwargs):
         super().__init__()
         self._use_masked = use_masked
+        self._use_cv2 = use_cv2
 
     def __call__(self, X: core.ImageWrapper) -> core.ImageWrapper:
         assert X.im.ndim == 2, "Should be an image with one channel!"
@@ -31,3 +35,13 @@ class BaseThresholder(abc.ABC):
     @abc.abstractmethod
     def threshold(self, X: core.ImageWrapper) -> ThreshReturn:
         return ThreshReturn(0.0)
+
+class BaseLocalThresholder(BaseThresholder):
+
+    def __init__(self, *args,
+                 window_size: int = 31,
+                 offset: float = 0,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self._window_size = window_size
+        self._offset = offset

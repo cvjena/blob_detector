@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 class ImageWrapper:
     im: np.ndarray
     parent: T.Optional[ImageWrapper] = None
+    creator: T.Optional[str] = None
     __mask: T.Optional[np.ndarray] = None
 
     def __post_init__(self):
@@ -68,4 +69,5 @@ class ImageWrapper:
         else:
             ax.imshow(self.im, cmap=plt.cm.gray)
 
+        ax.set_title(self.creator)
         return ax

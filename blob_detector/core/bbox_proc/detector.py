@@ -25,4 +25,6 @@ class Detector:
             *cont.max(axis=0)[0]
         ) for cont in contours]
 
+        bboxes = [bbox for bbox in bboxes if 0 not in bbox.size]
+
         return Result(im, bboxes)

@@ -11,10 +11,6 @@ from blob_detector.core.binarizers import base
 
 class OtsuTresholder(base.BaseThresholder):
 
-    def __init__(self, *, use_cv2: bool = False, **kwargs):
-        super().__init__(**kwargs)
-        self._use_cv2 = use_cv2
-
     def threshold(self, X: core.ImageWrapper) -> base.ThreshReturn:
         im = X.im
         if self._use_cv2:
@@ -27,19 +23,29 @@ class OtsuTresholder(base.BaseThresholder):
 
         return base.ThreshReturn(thresh=thresh, bin_im=bin_im)
 
-class LocalOtsuTresholder(base.BaseThresholder):
+class LocalOtsuTresholder(base.BaseLocalThresholder):
 
-    def __init__(self, *, window_size: int = 30, **kwargs):
+    def __init__(self, **kwargs):
+        from .high_pass import HighPassTresholder
         super().__init__(**kwargs)
-        self.window_size = window_size
+
+        self._high_pass_thresh = None #HighPassTresholder(**kwargs)
 
     def threshold(self, X: core.ImageWrapper) -> base.ThreshReturn:
         mask = X.mask if self._use_masked else None
         im = X.im
-        footprint = disk(self.window_size)
-        thresh = filters.rank.otsu(im, footprint, mask=mask)
 
-        bin_im = im >= thresh
+        if False: #self._use_cv2:
+            import pdb; pdb.set_trace()
+        else:
+            footprint = disk(self._window_size)
+            thresh = filters.rank.otsu(im, footprint, mask=mask)
+
+            bin_im = im >= thresh
+
+        if self._high_pass_thresh is not None:
+            hp_thesh, hp_bin_im = self._high_pass_thresh.threshold(X)
+            bin_im = np.logical_or(bin_im, hp_bin_im == 255)
+
         bin_im = (bin_im * 255).astype(np.uint8)
-
         return base.ThreshReturn(thresh=0, bin_im=bin_im)

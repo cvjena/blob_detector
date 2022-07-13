@@ -39,8 +39,11 @@ class BBoxFilter(ImageSetter):
                            )
 
 
+        if len(inds) != 1:
+            inds = inds.squeeze()
+
         inds2 = []
-        for i in inds.squeeze():
+        for i in inds:
             bbox = bboxes[i]
 
             if not bbox.is_valid:

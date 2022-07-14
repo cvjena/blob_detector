@@ -13,7 +13,8 @@ class BorderRemoval:
 
     def __call__(self, X: core.ImageWrapper) -> core.ImageWrapper:
 
-        res = utils._mask_border(X.im, area_thresh=self.area_thresh)
+        res = X.im * X.mask.astype(X.im.dtype)
+        #utils._mask_border(X.im, area_thresh=self.area_thresh)
         return core.ImageWrapper(res, parent=X)
 
 class BorderFinder:

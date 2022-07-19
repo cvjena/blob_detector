@@ -14,6 +14,9 @@ using namespace std;
 #define MAX_AREA 1/9.0
 #define VALID_RATIO 0.1
 
+typedef const cv::Mat& InputImage;
+typedef cv::Mat& OutputImage;
+
 class BBox
 {
 
@@ -33,16 +36,16 @@ public:
     ~BBox() {};
 
 
-    void draw(cv::Mat &image) const;
-    void draw(cv::Mat &image,
+    void draw(OutputImage image) const;
+    void draw(OutputImage image,
               const cv::Scalar &color,
               int thickness = 1,
               int lineType = cv::LINE_AA,
               int shift = 0) const;
-    void crop(cv::Mat image, cv::Mat &crop);
+    void crop(InputImage image, OutputImage crop);
 
-    void toAbsolute(const cv::Size &size, int&, int&, int&, int&) const;
-    void toAbsolute(const cv::Mat &image, int&, int&, int&, int&) const;
+    void toAbsolute( const cv::Size &size, int&, int&, int&, int& ) const;
+    void toAbsolute( InputImage image, int&, int&, int&, int& ) const;
 
     bool splittable(const cv::Size &size) const;
     bool isValid(const float validRatio = VALID_RATIO, const float minArea = MIN_AREA, const float maxArea = MAX_AREA) const;
@@ -54,7 +57,7 @@ public:
     void enlarge(BBox &other, const float scale = 0.01);
     void enlarge(BBox &other, const float scaleX, const float scaleY);
 
-    void setScore(const cv::Mat &image);
+    void setScore(InputImage image);
     double getScore(){ return this->score; };
 
     void tile(vector<BBox> &tiles, const int n_tiles);
@@ -105,34 +108,34 @@ public:
 
 typedef vector<BBox> BBoxes;
 
-void detect( cv::Mat image, BBoxes &boxes );
-void detect( cv::Mat image, cv::Mat mask, BBoxes &boxes );
-void splitBoxes(cv::Mat image, const BBoxes &boxes, BBoxes &newBoxes );
+void detect( InputImage image, BBoxes &boxes );
+void detect( InputImage image, InputImage mask, BBoxes &boxes );
+void splitBoxes(InputImage image, const BBoxes &boxes, BBoxes &newBoxes );
 
-void findBorder( cv::Mat image, cv::Mat &border_mask, const double threshold = 50.0, const int pad = 10 );
-void preprocess( cv::Mat image, cv::Mat &output, const double sigma = 5.0, const bool equalize = false );
-void binarize( cv::Mat image, cv::Mat &output, const int window_size = 31, const float C = 2.0 );
-void binarize( cv::Mat image, cv::Mat &output, cv::Mat mask, const int window_size = 31, const float C = 2.0);
+void findBorder( InputImage image, OutputImage border_mask, const double threshold = 50.0, const int pad = 10 );
+void preprocess( InputImage image, OutputImage output, const double sigma = 5.0, const bool equalize = false );
+void binarize( InputImage image, OutputImage output, const int window_size = 31, const float C = 2.0 );
+void binarize( InputImage image, OutputImage output, InputImage mask, const int window_size = 31, const float C = 2.0);
 void filterBoxes( BBoxes &boxes, vector<int> &indices, const float score_threshold = 0.5, const float nms_threshold = 0.3);
 
-void open_close( cv::Mat &image, int kernel_size = 3, int iterations = 2 );
+void open_close( OutputImage image, int kernel_size = 3, int iterations = 2 );
 bool compareContours(vector<cv::Point> c1, vector<cv::Point> c2 );
-void gaussian( cv::Mat image, cv::Mat &output, double sigma );
-void correlate( const cv::Mat &im1, const cv::Mat &im2, cv::Mat &corr, bool normalize = true);
-void imshow( const string &name, cv::Mat im );
+void gaussian( InputImage image, OutputImage output, double sigma );
+void correlate( InputImage im1, InputImage im2, OutputImage corr, bool normalize = true);
+void imshow( const string &name, InputImage im );
 
-void putText( cv::Mat &image,
+void putText( InputImage image,
               const string &text,
               const cv::Point2d &pos,
               const cv::Scalar &color = cv::Scalar(0),
               int thickness = 1,
               int lineType = cv::LINE_AA);
 
-void showBoxes( const string &name, cv::Mat &im, const BBoxes &boxes, const cv::Scalar &color,
+void showBoxes( const string &name, OutputImage im, const BBoxes &boxes, const cv::Scalar &color,
                 int thickness = 1,
                 int lineType = cv::LINE_AA);
 
-void showBoxes( const string &name, cv::Mat &im, const BBoxes &boxes, const vector<int> &indices,
+void showBoxes( const string &name, OutputImage im, const BBoxes &boxes, const vector<int> &indices,
                 const cv::Scalar &color,
                 int thickness = 1,
                 int lineType = cv::LINE_AA);
@@ -142,11 +145,11 @@ int waitKey( float timer = 0.1 );
 /* end heads */
 
 /* Utils */
-void gaussian( cv::Mat image, cv::Mat &output, double sigma ){
+void gaussian( InputImage image, OutputImage output, double sigma ){
     cv::GaussianBlur(image, output, cv::Size(0, 0), sigma);
 }
 
-void correlate( const cv::Mat &image, const cv::Mat &kernel, cv::Mat &corr, bool normalize)
+void correlate( InputImage image, InputImage kernel, OutputImage corr, bool normalize)
 {
     cv::Mat _image, _image_padded, _kernel;
 
@@ -193,12 +196,12 @@ void correlate( const cv::Mat &image, const cv::Mat &kernel, cv::Mat &corr, bool
 }
 
 
-void imshow( const string &name, cv::Mat im ){
+void imshow( const string &name, InputImage im ){
     cv::namedWindow(name, cv::WINDOW_NORMAL);
     cv::imshow(name, im);
 }
 
-void putText(cv::Mat &image, const string &text, const cv::Point2d &pos, const cv::Scalar &color, int thickness, int lineType)
+void putText(OutputImage image, const string &text, const cv::Point2d &pos, const cv::Scalar &color, int thickness, int lineType)
 {
 
     const int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
@@ -237,7 +240,7 @@ int waitKey(float timer)
     return 0;
 }
 
-void showBoxes( const string &name, cv::Mat &im, const BBoxes &boxes, const cv::Scalar& color, int thickness, int lineType){
+void showBoxes( const string &name, OutputImage im, const BBoxes &boxes, const cv::Scalar& color, int thickness, int lineType){
     cv::namedWindow(name, cv::WINDOW_NORMAL);
 
     for (BBox box: boxes)
@@ -247,7 +250,7 @@ void showBoxes( const string &name, cv::Mat &im, const BBoxes &boxes, const cv::
 
 }
 
-void showBoxes( const string &name, cv::Mat &im, const BBoxes &boxes, const vector<int> &indices, const cv::Scalar& color, int thickness, int lineType){
+void showBoxes( const string &name, OutputImage im, const BBoxes &boxes, const vector<int> &indices, const cv::Scalar& color, int thickness, int lineType){
     cv::namedWindow(name, cv::WINDOW_NORMAL);
 
     for (int i: indices)
@@ -291,7 +294,7 @@ void BBox::toAbsolute(const cv::Size &size, int& x0, int& y0, int& x1, int& y1) 
     y1 = min(h - 1, int(this->lower_right.y * h));
 }
 
-void BBox::toAbsolute(const cv::Mat &image, int& x0, int& y0, int& x1, int& y1) const
+void BBox::toAbsolute(InputImage image, int& x0, int& y0, int& x1, int& y1) const
 {
     this->toAbsolute(image.size(), x0, y0, x1, y1);
 }
@@ -312,7 +315,7 @@ bool BBox::isValid(const float validRatio, const float minArea, const float maxA
         minArea <= this->area() && this->area() <= maxArea;
 }
 
-void BBox::draw(cv::Mat &image) const
+void BBox::draw(OutputImage image) const
 {
     cv::Scalar color;
     switch(image.channels()){
@@ -330,7 +333,7 @@ void BBox::draw(cv::Mat &image) const
     this->draw(image, color);
 }
 
-void BBox::draw(cv::Mat &image, const cv::Scalar& color, int thickness, int lineType, int shift) const
+void BBox::draw(OutputImage image, const cv::Scalar& color, int thickness, int lineType, int shift) const
 {
     int x0, y0, x1, y1;
     this->toAbsolute(image.size(), x0, y0, x1, y1);
@@ -349,7 +352,7 @@ void BBox::draw(cv::Mat &image, const cv::Scalar& color, int thickness, int line
     putText(image, string(&buf[0]), this->origin(), color, 1, lineType);
 }
 
-void BBox::crop(cv::Mat image, cv::Mat &crop){
+void BBox::crop(InputImage image, OutputImage crop){
 
     int x0, y0, x1, y1;
     this->toAbsolute(image.size(), x0, y0, x1, y1);
@@ -387,7 +390,7 @@ void BBox::tile(BBoxes &tiles, const int n_xtiles, const int n_ytiles)
 
 }
 
-void BBox::setScore(const cv::Mat &image)
+void BBox::setScore(InputImage image)
 {
     cv::Mat crop, offsetCrop, corr;
     BBox offset_box;
@@ -490,7 +493,7 @@ ostream& operator<<(ostream& os, const BBox& bbox) {
 
 
 
-void findBorder( cv::Mat image, cv::Mat &border_mask, double threshold, int pad )
+void findBorder( InputImage image, OutputImage border_mask, double threshold, int pad )
 {
     cv::Mat padded, bin_im;
     vector<vector<cv::Point> > contours;
@@ -530,7 +533,7 @@ void findBorder( cv::Mat image, cv::Mat &border_mask, double threshold, int pad 
 
 
 
-void preprocess( cv::Mat image, cv::Mat &output, double sigma, bool equalize){
+void preprocess( InputImage image, OutputImage output, double sigma, bool equalize){
 
     if ( equalize )
         cv::createCLAHE(2.0, cv::Size(10, 10))->apply(image, output);
@@ -542,7 +545,7 @@ void preprocess( cv::Mat image, cv::Mat &output, double sigma, bool equalize){
 }
 
 
-void binarize( cv::Mat image, cv::Mat &output, int window_size, float C)
+void binarize( InputImage image, OutputImage output, int window_size, float C)
 {
     auto maxValue = 255;
     cv::adaptiveThreshold(image, output,
@@ -551,7 +554,7 @@ void binarize( cv::Mat image, cv::Mat &output, int window_size, float C)
         cv::THRESH_BINARY_INV,
         window_size, C);
 }
-void binarize( cv::Mat image, cv::Mat &output, cv::Mat mask, int window_size, float C)
+void binarize( InputImage image, OutputImage output, InputImage mask, int window_size, float C)
 {
     cv::Mat masked = cv::Mat::zeros( image.size(), image.type() );
     image.copyTo(masked, mask);
@@ -559,7 +562,7 @@ void binarize( cv::Mat image, cv::Mat &output, cv::Mat mask, int window_size, fl
     output.copyTo(output, mask);
 }
 
-void open_close( cv::Mat &img, int kernel_size, int iterations)
+void open_close( OutputImage img, int kernel_size, int iterations)
 {
     cv::Mat kernel = cv::Mat::ones(kernel_size, kernel_size, img.type());
 
@@ -575,14 +578,14 @@ void open_close( cv::Mat &img, int kernel_size, int iterations)
 
 }
 
-void detect(cv::Mat image, cv::Mat mask, BBoxes &boxes)
+void detect(InputImage image, InputImage mask, BBoxes &boxes)
 {
     cv::Mat masked = cv::Mat::zeros( image.size(), image.type() );
     image.copyTo(masked, mask);
     detect(masked, boxes);
 }
 
-void detect(cv::Mat image, BBoxes &boxes)
+void detect(InputImage image, BBoxes &boxes)
 {
     vector<vector<cv::Point> > contours;
 
@@ -595,7 +598,7 @@ void detect(cv::Mat image, BBoxes &boxes)
 
 }
 
-void splitBoxes(cv::Mat image, const BBoxes &boxes, BBoxes &outputBoxes)
+void splitBoxes(InputImage image, const BBoxes &boxes, BBoxes &outputBoxes)
 {
 
     cv::Mat crop, crop_processed, bin_crop;

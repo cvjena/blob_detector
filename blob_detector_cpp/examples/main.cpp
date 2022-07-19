@@ -7,7 +7,12 @@
 
 
 using namespace std;
+
+
 /* heads */
+#define MIN_AREA 4e-4
+#define MAX_AREA 1/9.0
+#define VALID_RATIO 0.1
 
 class BBox
 {
@@ -40,7 +45,7 @@ public:
     void toAbsolute(const cv::Mat &image, int&, int&, int&, int&) const;
 
     bool splittable(const cv::Size &size) const;
-    bool isValid(const float validRatio = 0.1, const float minArea = 4e-4, const float maxArea = 1/9.0) const;
+    bool isValid(const float validRatio = VALID_RATIO, const float minArea = MIN_AREA, const float maxArea = MAX_AREA) const;
 
     BBox rescale(const BBox &other);
 
@@ -297,27 +302,10 @@ bool BBox::splittable(const cv::Size &size) const
     this->toAbsolute(size, x0, y0, x1, y1);
     int w = x1-x0, h = y1-y0;
     double diag = sqrt(pow(w, 2) + pow(h, 2));
-    return diag >= 50.0 and this->area() <= 0.5;
+    return diag >= 50.0 and MIN_AREA < this->area() and this->area() <= MAX_AREA;
 }
 bool BBox::isValid(const float validRatio, const float minArea, const float maxArea) const
 {
-
-//     cout << validRatio << ", " << minArea << ", " << maxArea << " | ";
-//     const char *fmt = "[ H: %.5f, W: %.5f, ratio: %.3f, area: %.5f ]";
-//     int sz = std::snprintf(nullptr, 0, fmt,
-//         this->width(),
-//         this->height(),
-//         this->ratio(),
-//         this->area());
-
-//     std::vector<char> buf(sz + 1); // note +1 for null terminator
-//     std::snprintf(&buf[0], buf.size(), fmt,
-//         this->width(),
-//         this->height(),
-//         this->ratio(),
-//         this->area());
-
-//     cout << &buf[0] << endl;
 
     return this->width() != 0 && this->height() != 0 &&
         this->ratio() >= validRatio &&
@@ -416,12 +404,6 @@ void BBox::setScore(const cv::Mat &image)
 
     BBoxes tiles;
     BBox().tile(tiles, 3);
-
-    // cv::Mat foo = offsetCrop.clone();
-    // showBoxes("OffsetCrop", foo, tiles, cv::Scalar(190), 2);
-
-    // cv::Mat bar = corr.clone();
-    // showBoxes("Correlation", bar, tiles, cv::Scalar(190/255.0), 2);
 
     cv::Mat patch;
     double middleMean = 0.0, adjacentMean = 0.0;
@@ -692,9 +674,6 @@ int main(int argc, char** argv)
 
     // 4. binarization (including border information)
     binarize(gray_processed, bin_im, border);
-    auto alpha = 1.0;
-    gray_processed = gray_processed * alpha + bin_im * (1 - alpha);
-    imshow("Image", gray_processed);
 
     // 4.5 [optional] morphological operations
     // (set parameters to -1 to disable this operation)
@@ -704,23 +683,13 @@ int main(int argc, char** argv)
     // 5. Detect bounding boxes (including border information)
     detect(bin_im, border, boxes);
 
-    cv::Mat det = bin_im.clone();
-    showBoxes("Detections", det, boxes, cv::Scalar(127), 2);
-
     vector<BBox> boxes2;
     // 6. Try to split bounding boxes
     splitBoxes(gray, boxes, boxes2);
 
-    showBoxes("Split Detections", det, boxes2, cv::Scalar(190), 2);
-
     // 7.1. Filter bounding boxes: NMS
     vector<int> indices(boxes2.size());
     nmsBoxes(boxes2, indices, 0.5, 0.3);
-
-    det = bin_im.clone();
-    showBoxes("Filtered Detections (1)", det, boxes2, indices, cv::Scalar(127), 2);
-
-    cout << indices.size();
 
     // 7.2. Filter bounding boxes: Validation checks
     indices.erase(remove_if(
@@ -728,23 +697,13 @@ int main(int argc, char** argv)
         [&boxes2](int i) { return !boxes2[i].isValid(); }
     ), indices.end());
 
-    cout << " > " << indices.size() << endl;
-
-    det = bin_im.clone();
-    showBoxes("Filtered Detections (2)", det, boxes2, indices, cv::Scalar(190), 2);
-
     // 8. Enlarge boxes
     for (int i : indices)
         boxes2[i].enlarge(0.01);
-
-    det = bin_im.clone();
-    showBoxes("Enlared", det, boxes2, indices, cv::Scalar(190), 2);
 
     // 9. Score boxes
     for (int i : indices)
         boxes2[i].setScore(gray);
 
-    showBoxes("Final", image, boxes2, indices, cv::Scalar(255, 0, 0), 2);
-
-    return waitKey();
+    return 0;
 }

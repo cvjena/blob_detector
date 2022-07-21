@@ -10,6 +10,81 @@
 using namespace std;
 
 
+void imshow( const std::string &name,
+             InputImage im );
+
+void showBoxes( const std::string &name,
+                OutputImage im,
+                const BBoxes &boxes,
+                const cv::Scalar &color,
+                int thickness = 1,
+                int lineType = cv::LINE_AA );
+
+void showBoxes( const std::string &name,
+                OutputImage im,
+                const BBoxes &boxes,
+                const std::vector<int> &indices,
+                const cv::Scalar &color,
+                int thickness = 1,
+                int lineType = cv::LINE_AA );
+
+int waitKey( float timer = 0.1 );
+
+
+void imshow( const string &name, InputImage im ){
+    cv::namedWindow(name, cv::WINDOW_NORMAL);
+    cv::imshow(name, im);
+}
+
+
+int waitKey( float timer )
+{
+
+    for (;;)
+    {
+        char key = (char) cv::waitKey(timer);
+        if ( key == 'q' || key == 'Q' || key == 27)
+            break;
+    }
+
+    cv::destroyAllWindows();
+    return 0;
+}
+
+void showBoxes( const string &name,
+                OutputImage im,
+                const BBoxes &boxes,
+                const cv::Scalar& color,
+                int thickness,
+                int lineType )
+{
+    cv::namedWindow(name, cv::WINDOW_NORMAL);
+
+    for (BBox box: boxes)
+        box.draw(im, color, thickness, lineType);
+
+    cv::imshow(name, im);
+
+}
+
+void showBoxes( const string &name,
+                OutputImage im,
+                const BBoxes &boxes,
+                const vector<int> &indices,
+                const cv::Scalar& color,
+                int thickness,
+                int lineType )
+{
+    cv::namedWindow(name, cv::WINDOW_NORMAL);
+
+    for (int i: indices)
+        boxes[i].draw(im, color, thickness, lineType);
+
+    cv::imshow(name, im);
+
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -71,5 +146,9 @@ int main(int argc, char** argv)
     for (int i : indices)
         boxes2[i].setScore(gray);
 
-    return 0;
+
+    showBoxes("Final", image, boxes2, indices, cv::Scalar(255, 0, 0), 2);
+
+    return waitKey();
+    //return 0;
 }

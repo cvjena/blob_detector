@@ -62,11 +62,6 @@ void correlate( InputImage image,
 }
 
 
-void imshow( const string &name, InputImage im ){
-    cv::namedWindow(name, cv::WINDOW_NORMAL);
-    cv::imshow(name, im);
-}
-
 void putText( OutputImage image,
               const string &text,
               const cv::Point2d &pos,
@@ -97,52 +92,6 @@ void putText( OutputImage image,
 
 }
 
-int waitKey( float timer )
-{
-
-    for (;;)
-    {
-        char key = (char) cv::waitKey(timer);
-        if ( key == 'q' || key == 'Q' || key == 27)
-            break;
-    }
-
-    cv::destroyAllWindows();
-    return 0;
-}
-
-void showBoxes( const string &name,
-                OutputImage im,
-                const BBoxes &boxes,
-                const cv::Scalar& color,
-                int thickness,
-                int lineType )
-{
-    cv::namedWindow(name, cv::WINDOW_NORMAL);
-
-    for (BBox box: boxes)
-        box.draw(im, color, thickness, lineType);
-
-    cv::imshow(name, im);
-
-}
-
-void showBoxes( const string &name,
-                OutputImage im,
-                const BBoxes &boxes,
-                const vector<int> &indices,
-                const cv::Scalar& color,
-                int thickness,
-                int lineType )
-{
-    cv::namedWindow(name, cv::WINDOW_NORMAL);
-
-    for (int i: indices)
-        boxes[i].draw(im, color, thickness, lineType);
-
-    cv::imshow(name, im);
-
-}
 
 bool compareContours( vector<cv::Point> c1, vector<cv::Point> c2 )
 {

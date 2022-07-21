@@ -45,7 +45,7 @@ void filterBoxes( BBoxes &boxes,
                   const float nms_threshold = 0.3 );
 
 void nmsBoxes( BBoxes &boxes,
-               vector<int> &indices,
+               std::vector<int> &indices,
                const float score_threshold,
                const float nms_threshold);
 

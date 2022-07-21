@@ -4,8 +4,6 @@
 
 #include "blob_detector/core.h"
 
-using namespace std;
-
 class BBox
 {
 
@@ -17,7 +15,7 @@ private:
 
 public:
     BBox() = default;
-    BBox(vector<cv::Point>, cv::Size);
+    BBox(std::vector<cv::Point>, cv::Size);
     BBox(const BBox& other): upper_left(other.upper_left), lower_right(other.lower_right), score(other.score){}
     BBox(double x0, double y0, double x1, double y1): upper_left(x0, y0), lower_right(x1, y1) {}
     BBox(double x0, double y0, double x1, double y1, double score): upper_left(x0, y0), lower_right(x1, y1), score(score) {}
@@ -49,9 +47,10 @@ public:
     void setScore(InputImage image);
     double getScore(){ return this->score; };
 
-    void tile(vector<BBox> &tiles, const int n_tiles);
-    void tile(vector<BBox> &tiles, const int n_xtiles, const int n_ytiles);
+    void tile(std::vector<BBox> &tiles, const int n_tiles);
+    void tile(std::vector<BBox> &tiles, const int n_xtiles, const int n_ytiles);
 
+    /* autistic inline! */
     cv::Rect2d asRect() const
     {
         return cv::Rect2d(this->upper_left, this->lower_right);
@@ -64,7 +63,7 @@ public:
 
     double ratio() const
     {
-        return min(this->height(), this->width()) / max(this->height(), this->width());
+        return std::min(this->height(), this->width()) / std::max(this->height(), this->width());
     }
 
     cv::Point2d size() const
@@ -89,10 +88,10 @@ public:
     }
 
 
-    friend ostream& operator<<(ostream& , const BBox&);
+    friend std::ostream& operator<<(std::ostream& , const BBox&);
     BBox operator *(cv::Point2d);
     BBox operator +(cv::Point2d);
 
 };
 
-typedef vector<BBox> BBoxes;
+typedef std::vector<BBox> BBoxes;

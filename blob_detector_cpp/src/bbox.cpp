@@ -4,9 +4,11 @@
 
 using namespace std;
 
-BBox::BBox(vector<cv::Point> contour, cv::Size size){
+BBox::BBox(vector<cv::Point> contour, cv::Size size)
+{
     float x0 = -1, x1 = -1, y0 = -1, y1 = -1;
-    for (cv::Point pt: contour){
+    for (cv::Point pt: contour)
+    {
         if(x0 == -1 || x0 > pt.x) x0 = pt.x;
         if(y0 == -1 || y0 > pt.y) y0 = pt.y;
         if(x1 == -1 || x1 < pt.x) x1 = pt.x;
@@ -41,6 +43,7 @@ bool BBox::splittable(const cv::Size &size) const
     double diag = sqrt(pow(w, 2) + pow(h, 2));
     return diag >= 50.0 and MIN_AREA < this->area() and this->area() <= MAX_AREA;
 }
+
 bool BBox::isValid(const float validRatio, const float minArea, const float maxArea) const
 {
 
@@ -62,6 +65,9 @@ void BBox::draw(OutputImage image) const
         case 4:
             color = cv::Scalar(0,0,0,1);
             break;
+        default:
+            cerr << "ERROR! Wrong number of channels: " << image.channels() << endl;
+            exit(1);
     }
 
     this->draw(image, color);

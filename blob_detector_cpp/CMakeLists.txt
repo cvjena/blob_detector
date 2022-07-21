@@ -26,7 +26,7 @@ endforeach()
 
 
 ##### shared library definition #####
-find_package( OpenCV REQUIRED )
+find_package( OpenCV REQUIRED core dnn imgproc )
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
@@ -46,7 +46,10 @@ add_library( blob_detector SHARED
              include/blob_detector/version.h
             )
 
-target_link_libraries( blob_detector ${OpenCV_LIBS} )
+target_link_libraries( blob_detector
+                       opencv_core
+                       opencv_dnn
+                       opencv_imgproc )
 
 set_target_properties(blob_detector PROPERTIES
   PUBLIC_HEADER "include/blob_detector/bbox.h;include/blob_detector/core.h;include/blob_detector/operations.h;include/blob_detector/utils.h;include/blob_detector/version.h")

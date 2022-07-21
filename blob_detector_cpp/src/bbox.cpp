@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace blobDet {
+
 BBox::BBox(vector<cv::Point> contour, cv::Size size)
 {
     float x0 = -1, x1 = -1, y0 = -1, y1 = -1;
@@ -229,3 +231,5 @@ ostream& operator<<(ostream& os, const BBox& bbox) {
     os << &buf[0];
     return os;
 }
+
+} // blobDet

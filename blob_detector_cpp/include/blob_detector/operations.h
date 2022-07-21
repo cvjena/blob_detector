@@ -3,6 +3,8 @@
 
 #include "blob_detector/core.h"
 
+namespace blobDet {
+
 void findBorder( InputImage image,
                  OutputImage border_mask,
                  const double threshold = 50.0,
@@ -24,9 +26,9 @@ void binarize( InputImage image,
                const int window_size = 31,
                const float C = 2.0 );
 
-void open_close( OutputImage image,
-                 int kernel_size = 3,
-                 int iterations = 2 );
+void openClose( OutputImage image,
+                int kernel_size = 3,
+                int iterations = 2 );
 
 void detect( InputImage image,
              BBoxes &boxes );
@@ -49,3 +51,4 @@ void nmsBoxes( BBoxes &boxes,
                const float score_threshold,
                const float nms_threshold);
 
+} // blobDet

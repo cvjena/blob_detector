@@ -4,6 +4,11 @@
 
 #include "blob_detector/core.h"
 
+namespace blobDet {
+
+class BBox;
+typedef std::vector<BBox> BBoxes;
+
 class BBox
 {
 
@@ -47,8 +52,8 @@ public:
     void setScore(InputImage image);
     double getScore(){ return this->score; };
 
-    void tile(std::vector<BBox> &tiles, const int n_tiles);
-    void tile(std::vector<BBox> &tiles, const int n_xtiles, const int n_ytiles);
+    void tile(BBoxes &tiles, const int n_tiles);
+    void tile(BBoxes &tiles, const int n_xtiles, const int n_ytiles);
 
     /* autistic inline! */
     cv::Rect2d asRect() const
@@ -94,4 +99,4 @@ public:
 
 };
 
-typedef std::vector<BBox> BBoxes;
+} // blobDet

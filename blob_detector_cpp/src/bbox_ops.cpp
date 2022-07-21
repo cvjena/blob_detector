@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace blobDet {
+
 void detect(InputImage image, InputImage mask, BBoxes &boxes)
 {
     cv::Mat masked = cv::Mat::zeros( image.size(), image.type() );
@@ -29,7 +31,8 @@ void splitBoxes(InputImage image, const BBoxes &boxes, BBoxes &outputBoxes)
 
     cv::Mat crop, crop_processed, bin_crop;
     vector<BBox> newBoxes;
-    for (BBox bbox : boxes){
+    for (BBox bbox : boxes)
+    {
         outputBoxes.push_back(bbox);
         if (!bbox.splittable(image.size()))
             continue;
@@ -39,12 +42,11 @@ void splitBoxes(InputImage image, const BBoxes &boxes, BBoxes &outputBoxes)
 
         preprocess(crop, crop_processed, 2.0, true);
         binarize(crop_processed, bin_crop, 15);
-        open_close(bin_crop, 5.0, 2);
+        openClose(bin_crop, 5.0, 2);
 
         newBoxes.clear();
 
         detect(bin_crop, newBoxes);
-
 
         for (auto _box: newBoxes)
             outputBoxes.push_back(_box.rescale(bbox));
@@ -54,8 +56,8 @@ void splitBoxes(InputImage image, const BBoxes &boxes, BBoxes &outputBoxes)
 
 void nmsBoxes( BBoxes &boxes,
                vector<int> &indices,
-               const float score_threshold,
-               const float nms_threshold)
+               const float scoreThreshold,
+               const float nmsThreshold)
 {
 
     vector<cv::Rect2d> _boxes(boxes.size());
@@ -68,7 +70,9 @@ void nmsBoxes( BBoxes &boxes,
     cv::dnn::NMSBoxes(
         _boxes,
         scores,
-        score_threshold,
-        nms_threshold,
+        scoreThreshold,
+        nmsThreshold,
         indices);
 }
+
+} // blobDet

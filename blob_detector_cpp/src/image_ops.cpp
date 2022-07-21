@@ -4,6 +4,8 @@
 
 using namespace std;
 
+namespace blobDet {
+
 void findBorder( InputImage image, OutputImage border_mask, double threshold, int pad )
 {
     cv::Mat padded, bin_im;
@@ -19,7 +21,6 @@ void findBorder( InputImage image, OutputImage border_mask, double threshold, in
         padded = image.clone();
 
     cv::threshold(padded, bin_im, threshold, 255.0, cv::THRESH_BINARY);
-
 
     cv::findContours(bin_im, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
@@ -42,7 +43,8 @@ void findBorder( InputImage image, OutputImage border_mask, double threshold, in
 
 }
 
-void preprocess( InputImage image, OutputImage output, double sigma, bool equalize){
+void preprocess( InputImage image, OutputImage output, double sigma, bool equalize )
+{
 
     if ( equalize )
         cv::createCLAHE(2.0, cv::Size(10, 10))->apply(image, output);
@@ -53,28 +55,28 @@ void preprocess( InputImage image, OutputImage output, double sigma, bool equali
 
 }
 
-void binarize( InputImage image, OutputImage output, int window_size, float C)
+void binarize( InputImage image, OutputImage output, int windowSize, float C)
 {
     auto maxValue = 255;
     cv::adaptiveThreshold(image, output,
         maxValue,
         cv::ADAPTIVE_THRESH_MEAN_C,
         cv::THRESH_BINARY_INV,
-        window_size, C);
+        windowSize, C);
 }
-void binarize( InputImage image, OutputImage output, InputImage mask, int window_size, float C)
+void binarize( InputImage image, OutputImage output, InputImage mask, int windowSize, float C)
 {
     cv::Mat masked = cv::Mat::zeros( image.size(), image.type() );
     image.copyTo(masked, mask);
-    binarize(masked, output, window_size, C);
+    binarize(masked, output, windowSize, C);
     output.copyTo(output, mask);
 }
 
-void open_close( OutputImage img, int kernel_size, int iterations)
+void openClose( OutputImage img, int kernelSize, int iterations)
 {
-    cv::Mat kernel = cv::Mat::ones(kernel_size, kernel_size, img.type());
+    cv::Mat kernel = cv::Mat::ones(kernelSize, kernelSize, img.type());
 
-    if (kernel_size >= 1){
+    if (kernelSize >= 1){
         cv::morphologyEx(img, img, cv::MORPH_OPEN, kernel);
         cv::morphologyEx(img, img, cv::MORPH_CLOSE, kernel);
     }
@@ -85,3 +87,5 @@ void open_close( OutputImage img, int kernel_size, int iterations)
     }
 
 }
+
+} // blobDet

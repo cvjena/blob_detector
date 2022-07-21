@@ -3,6 +3,8 @@
 
 #include "blob_detector/core.h"
 
+namespace blobDet {
+
 bool compareContours( std::vector<cv::Point> c1,
                       std::vector<cv::Point> c2 );
 
@@ -21,3 +23,5 @@ void putText( OutputImage image,
               const cv::Scalar &color = cv::Scalar(0),
               int thickness = 1,
               int lineType = cv::LINE_AA );
+
+} // blobDet

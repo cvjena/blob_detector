@@ -8,6 +8,7 @@
 #include "blob_detector/core.h"
 
 using namespace std;
+using namespace blobDet;
 
 
 void imshow( const std::string &name,
@@ -118,7 +119,7 @@ int main(int argc, char** argv)
 
     // 4.5 [optional] morphological operations
     // (set parameters to -1 to disable this operation)
-    open_close(bin_im, 5, 2);
+    openClose(bin_im, 5, 2);
 
     vector<BBox> boxes;
     // 5. Detect bounding boxes (including border information)

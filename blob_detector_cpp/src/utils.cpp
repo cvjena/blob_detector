@@ -5,6 +5,8 @@
 
 using namespace std;
 
+namespace blobDet {
+
 void gaussian( InputImage image,
                OutputImage output,
                double sigma )
@@ -98,3 +100,4 @@ bool compareContours( vector<cv::Point> c1, vector<cv::Point> c2 )
     return fabs(cv::contourArea(cv::Mat(c1))) > fabs(cv::contourArea(cv::Mat(c2)));
 }
 
+} // blobDet

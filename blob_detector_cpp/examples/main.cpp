@@ -7,23 +7,22 @@
 
 #include "blob_detector/core.h"
 
-using namespace std;
-using namespace blobDet;
+namespace blob = blobDet;
 
 
 void imshow( const std::string &name,
-             InputImage im );
+             blob::InputImage im );
 
 void showBoxes( const std::string &name,
-                OutputImage im,
-                const BBoxes &boxes,
+                blob::OutputImage im,
+                const blob::BBoxes &boxes,
                 const cv::Scalar &color,
                 int thickness = 1,
                 int lineType = cv::LINE_AA );
 
 void showBoxes( const std::string &name,
-                OutputImage im,
-                const BBoxes &boxes,
+                blob::OutputImage im,
+                const blob::BBoxes &boxes,
                 const std::vector<int> &indices,
                 const cv::Scalar &color,
                 int thickness = 1,
@@ -32,7 +31,7 @@ void showBoxes( const std::string &name,
 int waitKey( float timer = 0.1 );
 
 
-void imshow( const string &name, InputImage im ){
+void imshow( const std::string &name, blob::InputImage im ){
     cv::namedWindow(name, cv::WINDOW_NORMAL);
     cv::imshow(name, im);
 }
@@ -52,26 +51,26 @@ int waitKey( float timer )
     return 0;
 }
 
-void showBoxes( const string &name,
-                OutputImage im,
-                const BBoxes &boxes,
+void showBoxes( const std::string &name,
+                blob::OutputImage im,
+                const blob::BBoxes &boxes,
                 const cv::Scalar& color,
                 int thickness,
                 int lineType )
 {
     cv::namedWindow(name, cv::WINDOW_NORMAL);
 
-    for (BBox box: boxes)
+    for (blob::BBox box: boxes)
         box.draw(im, color, thickness, lineType);
 
     cv::imshow(name, im);
 
 }
 
-void showBoxes( const string &name,
-                OutputImage im,
-                const BBoxes &boxes,
-                const vector<int> &indices,
+void showBoxes( const std::string &name,
+                blob::OutputImage im,
+                const blob::BBoxes &boxes,
+                const std::vector<int> &indices,
                 const cv::Scalar& color,
                 int thickness,
                 int lineType )
@@ -109,29 +108,29 @@ int main(int argc, char** argv)
 
     cv::Mat border;
     // 2. create border mask
-    findBorder(gray, border);
+    blob::findBorder(gray, border);
 
     // 3. gaussian blur and optional histogram equalization
-    preprocess(gray, gray_processed /* sigma, equalize*/ );
+    blob::preprocess(gray, gray_processed /* sigma, equalize*/ );
 
     // 4. binarization (including border information)
-    binarize(gray_processed, bin_im, border);
+    blob::binarize(gray_processed, bin_im, border);
 
     // 4.5 [optional] morphological operations
     // (set parameters to -1 to disable this operation)
-    openClose(bin_im, 5, 2);
+    blob::openClose(bin_im, 5, 2);
 
-    vector<BBox> boxes;
+    std::vector<blob::BBox> boxes;
     // 5. Detect bounding boxes (including border information)
-    detect(bin_im, border, boxes);
+    blob::detect(bin_im, border, boxes);
 
-    vector<BBox> boxes2;
+    std::vector<blob::BBox> boxes2;
     // 6. Try to split bounding boxes
-    splitBoxes(gray, boxes, boxes2);
+    blob::splitBoxes(gray, boxes, boxes2);
 
     // 7.1. Filter bounding boxes: NMS
-    vector<int> indices(boxes2.size());
-    nmsBoxes(boxes2, indices, 0.5, 0.3);
+    std::vector<int> indices(boxes2.size());
+    blob::nmsBoxes(boxes2, indices, 0.5, 0.3);
 
     // 7.2. Filter bounding boxes: Validation checks
     indices.erase(remove_if(

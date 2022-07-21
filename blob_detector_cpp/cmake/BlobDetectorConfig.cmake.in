@@ -1,0 +1,16 @@
+# - Config file for the BlobDetector package
+# It defines the following variables
+#  BLOBDET_INCLUDE_DIRS - include directories
+#  BLOBDET_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(BLOBDET_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(BLOBDET_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT TARGET foo AND NOT BlobDetector_BINARY_DIR)
+  include("${BLOBDET_CMAKE_DIR}/BlobDetectorTargets.cmake")
+endif()
+
+# These are IMPORTED targets created by BlobDetectorTargets.cmake
+set(BLOBDET_LIBRARIES blob_detector)

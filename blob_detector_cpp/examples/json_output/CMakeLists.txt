@@ -8,7 +8,7 @@ FetchContent_Declare( json
 FetchContent_MakeAvailable( json )
 
 
-find_package( OpenCV REQUIRED opencv_highgui )
+find_package( OpenCV REQUIRED opencv_imgcodecs )
 find_package( BlobDetector REQUIRED )
 
 include_directories(
@@ -19,6 +19,6 @@ include_directories(
 add_executable( detect main.cpp )
 target_link_libraries( detect
                        PUBLIC ${BLOBDET_LIBRARIES}
-                       PUBLIC opencv_highgui
+                       PUBLIC opencv_imgcodecs
                        PRIVATE nlohmann_json::nlohmann_json
                       )

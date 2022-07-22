@@ -1,2 +1,11 @@
 install
 build
+
+README.html
+
+*.jpeg
+*.JPEG
+*.jpg
+*.JPG
+*.png
+*.PNG

@@ -4,10 +4,13 @@
 #include <math.h>
 
 #include <opencv2/opencv.hpp>
+#include <nlohmann/json.hpp>
 
 #include "blob_detector/core.h"
 
 namespace blob = blobDet;
+// for convenience
+using json = nlohmann::json;
 
 
 void imshow( const std::string &name,
@@ -148,6 +151,9 @@ int main(int argc, char** argv)
 
 
     showBoxes("Final", image, boxes2, indices, cv::Scalar(255, 0, 0), 2);
+
+    std::vector<int> c_vector {1, 2, 3, 4};
+    json j_vec(c_vector);
 
     return waitKey();
     //return 0;

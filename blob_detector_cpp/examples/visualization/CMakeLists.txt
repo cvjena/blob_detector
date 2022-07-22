@@ -6,7 +6,7 @@ find_package( OpenCV REQUIRED opencv_highgui )
 find_package( BlobDetector REQUIRED )
 
 include_directories(
-    ../include
+    ${BLOBDET_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
 )
 

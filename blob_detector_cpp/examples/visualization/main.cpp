@@ -103,8 +103,11 @@ int main(int argc, char** argv)
 
     cv::Mat gray, gray_processed, bin_im;
 
-    // 1. BGR -> Gray
+    // 1.1 BGR -> Gray
     cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+
+    // 1.2 create border mask
+    blob::rescale(gray, 1080);
 
     cv::Mat border;
     // 2. create border mask

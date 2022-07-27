@@ -6,6 +6,14 @@ using namespace std;
 
 namespace blobDet {
 
+void rescale( OutputImage image, const int min_size, const double min_scale )
+{
+    double scale = min_size / std::min(image.size().width, image.size().height);
+    scale = std::max(min_scale, std::min(1.0, scale));
+
+    cv::resize(image, image, cv::Size(), scale, scale, cv::INTER_LINEAR);
+}
+
 void findBorder( InputImage image, OutputImage border_mask, double threshold, int pad )
 {
     cv::Mat padded, bin_im;

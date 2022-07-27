@@ -10,6 +10,10 @@ void findBorder( InputImage image,
                  const double threshold = 50.0,
                  const int pad = 10 );
 
+void rescale( OutputImage image,
+              const int min_size = 1080,
+              const double min_scale = 0.1 );
+
 void preprocess( InputImage image,
                  OutputImage output,
                  const double sigma = 5.0,

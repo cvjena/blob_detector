@@ -13,6 +13,11 @@ namespace blob = blobDet;
 void imshow( const std::string &name,
              blob::InputImage im );
 
+void imshow( const std::string &name,
+             blob::InputImage im ,
+             blob::InputImage border,
+             const double alpha = 0.5 );
+
 void showBoxes( const std::string &name,
                 blob::OutputImage im,
                 const blob::BBoxes &boxes,
@@ -34,6 +39,11 @@ int waitKey( float timer = 0.1 );
 void imshow( const std::string &name, blob::InputImage im ){
     cv::namedWindow(name, cv::WINDOW_NORMAL);
     cv::imshow(name, im);
+}
+
+void imshow( const std::string &name, blob::InputImage im, blob::InputImage border, const double alpha ){
+    cv::Mat _im = alpha * im + (1-alpha) * border;
+    imshow(name, _im);
 }
 
 

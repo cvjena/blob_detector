@@ -8,7 +8,8 @@ namespace blobDet {
 
 void rescale( OutputImage image, const int min_size, const double min_scale )
 {
-    double scale = min_size / std::min(image.size().width, image.size().height);
+    const double min_im_size = std::min(image.cols, image.rows);
+    double scale = min_size / min_im_size;
     scale = std::max(min_scale, std::min(1.0, scale));
 
     cv::resize(image, image, cv::Size(), scale, scale, cv::INTER_LINEAR);
@@ -43,10 +44,9 @@ void findBorder( InputImage image, OutputImage border_mask, double threshold, in
     cv::drawContours(border_mask, contours, 0, cv::Scalar(255), -1, cv::LINE_AA);
 
     if ( pad >= 1 ){
-        auto size = border_mask.size();
         border_mask = border_mask(
-            cv::Range(pad, size.height - pad),
-            cv::Range(pad, size.width - pad));
+            cv::Range(pad, border_mask.rows - pad),
+            cv::Range(pad, border_mask.cols - pad));
     }
 
 }

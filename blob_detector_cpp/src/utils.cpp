@@ -14,6 +14,15 @@ void gaussian( InputImage image,
     cv::GaussianBlur(image, output, cv::Size(0, 0), sigma);
 }
 
+int scaledThicknes( int thickness,
+                    InputImage im,
+                    int min_size )
+{
+
+    double thickness_scaler = min(im.rows, im.cols) / min_size;
+    return thickness * max(1.0, thickness_scaler);
+}
+
 void correlate( InputImage image,
                 InputImage kernel,
                 OutputImage corr,
@@ -34,8 +43,8 @@ void correlate( InputImage image,
     _kernel -= mean;
 
     // add proper padding
-    int k_w = _kernel.size().width,
-        k_h = _kernel.size().height;
+    int k_w = _kernel.cols,
+        k_h = _kernel.rows;
 
     _image_padded = cv::Mat(
         _image.rows + k_h,
@@ -73,24 +82,35 @@ void putText( OutputImage image,
 {
 
     const int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
-    const float fontScale = 0.6;
-    const int offset = 5;
+    const float fontScale = max(1.0, min(image.cols, image.rows) / (2 * 720.0) );
+    const int textThickness = thickness / 3 * 2;
+    const int offset = 5 + textThickness;
     int baseline = 0;
 
-    cv::Size textSize = cv::getTextSize(text, fontFace, fontScale, thickness, &baseline);
-    baseline += thickness;
+    cv::Size textSize = cv::getTextSize(text, fontFace, fontScale, textThickness, &baseline);
+    baseline += textThickness;
+
+    const int marginSize = offset + baseline;
+
+    cv::Point textOrigin(image.cols * pos.x, image.rows * pos.y);
+    cv::Point upperLeft = textOrigin + cv::Point(
+        textSize.width + 2*marginSize,
+        -textSize.height - 2*marginSize);
 
 
-    cv::Point textOrigin(
-        (image.cols * pos.x) + offset,
-        (image.rows * pos.y) - baseline - offset);
+    cv::rectangle(image, textOrigin, upperLeft, color, thickness, lineType);
 
-    cv::rectangle(image,
-                  textOrigin + cv::Point(-offset, baseline+offset),
-                  textOrigin + cv::Point(textSize.width+offset, -textSize.height-offset),
-                  color, thickness, lineType);
+    // cv::circle(image, textOrigin, 10, cv::Scalar(0, 0, 255), -1, lineType);
+    // cv::circle(image, upperLeft, 10, cv::Scalar(0, 0, 255), -1, lineType);
 
-    cv::putText(image, text, textOrigin, fontFace, fontScale, color, thickness, lineType);
+    cv::putText(image,
+                text,
+                textOrigin + cv::Point(marginSize, -marginSize),
+                fontFace,
+                fontScale,
+                color,
+                textThickness,
+                lineType);
 
 }
 

@@ -81,7 +81,7 @@ void BBox::draw(OutputImage image, const cv::Scalar& color, int thickness, int l
     this->toAbsolute(image.size(), x0, y0, x1, y1);
 
     cv::Point ul(x0, y0), lr(x1, y1);
-    cv::rectangle(image, ul, lr, color, thickness, lineType, shift);
+    cv::rectangle(image, ul, lr, color, scaledThicknes(thickness, image), lineType, shift);
 
     if (isnan(this->score))
         return;
@@ -91,7 +91,7 @@ void BBox::draw(OutputImage image, const cv::Scalar& color, int thickness, int l
     vector<char> buf(sz + 1); // note +1 for null terminator
     snprintf(&buf[0], buf.size(), fmt, this->score);
 
-    putText(image, string(&buf[0]), this->origin(), color, 1, lineType);
+    putText(image, string(&buf[0]), this->origin(), color, scaledThicknes(thickness, image), lineType);
 }
 
 void BBox::crop(InputImage image, OutputImage crop){

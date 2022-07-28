@@ -24,4 +24,7 @@ void putText( OutputImage image,
               int thickness = 1,
               int lineType = cv::LINE_AA );
 
+int scaledThicknes( int thickness,
+                    InputImage im,
+                    int min_size = 720 );
 } // blobDet

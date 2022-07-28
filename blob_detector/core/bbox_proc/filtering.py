@@ -27,16 +27,17 @@ class BBoxFilter(ImageSetter):
 
         _im = self._im.astype(np.float64) / 255.
 
-        integral_im = IntegralImage(_im)
-        bbox_stats = [integral_im.stats(bbox) for bbox in bboxes]
+        # integral_im = IntegralImage(_im)
+        # bbox_stats = [integral_im.stats(bbox) for bbox in bboxes]
+        bbox_stats = [None for bbox in bboxes]
 
         _bboxes = [[bbox.x0, bbox.y0, bbox.w, bbox.h] for bbox in bboxes]
 
         inds = cv2.dnn.NMSBoxes(_bboxes,
-                            scores=np.ones(len(_bboxes), dtype=np.float32),
-                            score_threshold=self.score_threshold,
-                            nms_threshold=self.nms_threshold,
-                           )
+            scores=np.ones(len(_bboxes), dtype=np.float32),
+            score_threshold=self.score_threshold,
+            nms_threshold=self.nms_threshold,
+        )
 
 
         if len(inds) != 1:

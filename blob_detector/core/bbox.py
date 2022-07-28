@@ -21,6 +21,12 @@ class BBox(T.NamedTuple):
     y1: float
 
 
+    def splittable(self, im):
+        x0, y0, x1, y1 = self(im)
+        w, h = x1 - x0, y1 - y0
+        diag = np.sqrt(w**2 + h**2)
+        return diag >= 50.0 and self.area > BBox.MIN_AREA
+
     @property
     def is_valid(self):
         return 0 not in self.size and \

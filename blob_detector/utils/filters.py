@@ -1,12 +1,12 @@
 import cv2
 import numpy as np
 
-from skimage import filters
-
 from blob_detector.utils.base import get_maxvalue
 
 
 def _gaussian(im: np.ndarray, sigma: float = 5.0):
+    return cv2.GaussianBlur(im, (0,0), sigmaX=sigma).astype(im.dtype)
+    from skimage import filters
     return filters.gaussian(im, sigma=sigma, preserve_range=True).astype(im.dtype)
 
 def _high_pass(im: np.ndarray, sigma: float = 5.0, *, return_low_pass: bool = False):
@@ -21,7 +21,7 @@ def _high_pass(im: np.ndarray, sigma: float = 5.0, *, return_low_pass: bool = Fa
     return (high_pass, gauss) if return_low_pass else high_pass
 
 
-def _correlate(im1, im2, normalize=True, boundary="symm", mode="same", **kwargs):
+def _correlate(im1, im2, normalize=True):
 
     # 0..255 -> 0..1
     im1 = im1.astype(np.float32) / 255

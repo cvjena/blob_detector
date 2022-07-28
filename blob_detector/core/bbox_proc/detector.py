@@ -9,11 +9,18 @@ from blob_detector.core.bbox_proc.base import Result
 
 class Detector:
 
+    def __init__(self, use_masked: bool = False):
+        super().__init__()
+        self._use_masked = use_masked
+
     def __call__(self, X: core.ImageWrapper) -> Result:
 
         im = X.im
 
-        contours, hierarchy = cv2.findContours(im, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        if self._use_masked:
+            im = im * X.mask.astype(np.uint8)
+
+        contours, hierarchy = cv2.findContours(im, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
         h, w, *c = im.shape

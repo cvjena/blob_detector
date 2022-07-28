@@ -9,18 +9,16 @@ class MorphologicalOps:
     def __init__(self, *, kernel_size: int, iterations: int):
         super().__init__()
 
-        self.kernel = None
+        self.kernel_size = kernel_size
         self.iterations = iterations
-
-        if kernel_size >= 3:
-            self.kernel = np.ones((kernel_size, kernel_size), dtype=np.float32)
 
 
     def __call__(self, X: ImageWrapper):
 
         im = X.im
-        if self.kernel is not None:
-            kernel = self.kernel.astype(im.dtype)
+        ksize = self.kernel_size
+        if ksize is not None and ksize >= 3:
+            kernel = np.ones((ksize, ksize), dtype=im.dtype)
             im = cv2.morphologyEx(im, cv2.MORPH_OPEN, kernel)
             im = cv2.morphologyEx(im, cv2.MORPH_CLOSE, kernel)
 

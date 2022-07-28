@@ -12,20 +12,30 @@ class ThreshReturn(T.NamedTuple):
 class BaseThresholder(abc.ABC):
 
     def __init__(self, *args,
-                 use_masked: bool = True,
-                 use_cv2: bool = False,
+                 use_masked: bool = False,
+                 use_cv2: bool = True,
                  **kwargs):
         super().__init__()
         self._use_masked = use_masked
         self._use_cv2 = use_cv2
 
+    def get_image(self, X: core.ImageWrapper) -> np.ndarray:
+        im = X.im
+
+        if self._use_masked:
+            im = im.copy()
+            mask = X.mask
+            im[mask == 0] = 0
+
+        return im
+
     def __call__(self, X: core.ImageWrapper) -> core.ImageWrapper:
         assert X.im.ndim == 2, "Should be an image with one channel!"
 
-        im = X.im
+        im = self.get_image(X)
         max_value = utils.get_maxvalue(im)
 
-        thresh, bin_im = self.threshold(X)
+        thresh, bin_im = self.threshold(im)
 
         if bin_im is None:
             bin_im = ((im > thresh) * max_value).astype(im.dtype)

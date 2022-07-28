@@ -12,8 +12,7 @@ class HighPassTresholder(base.BaseLocalThresholder):
         super().__init__(**kwargs)
         self._sigma = sigma
 
-    def threshold(self, X: core.ImageWrapper) -> base.ThreshReturn:
-        im = X.im
+    def threshold(self, im: np.ndarray) -> base.ThreshReturn:
 
         edges = utils._high_pass(im, sigma=(self._window_size - 1)/4)
 
@@ -21,13 +20,7 @@ class HighPassTresholder(base.BaseLocalThresholder):
             edges = utils._gaussian(edges, sigma=self._sigma)
 
 
-        if self._use_masked:
-            thresh = edges[X.mask.astype(bool)].mean()
-        else:
-            thresh = edges.mean()
-
-        # plt.show()
-        # plt.close()
+        thresh = edges.mean()
 
         bin_im = (edges <= thresh) * 255
         bin_im = bin_im.astype(np.uint8)

@@ -7,7 +7,7 @@ from blob_detector.core import ImageWrapper
 
 class Preprocessor:
 
-    def __init__(self, *, equalize: bool = False, sigma: bool = 5.0):
+    def __init__(self, *, equalize: bool = False, sigma: float = 5.0):
         super().__init__()
 
         self._equalizer = None

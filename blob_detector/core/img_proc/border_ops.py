@@ -7,14 +7,9 @@ from blob_detector import core
 
 class BorderRemoval:
 
-    def __init__(self, *, area_thresh: float = 0.5):
-        super().__init__()
-        self.area_thresh = area_thresh
-
     def __call__(self, X: core.ImageWrapper) -> core.ImageWrapper:
 
         res = X.im * X.mask.astype(X.im.dtype)
-        #utils._mask_border(X.im, area_thresh=self.area_thresh)
         return core.ImageWrapper(res, parent=X)
 
 class BorderFinder:
@@ -26,14 +21,12 @@ class BorderFinder:
     def __call__(self, X: core.ImageWrapper) -> core.ImageWrapper:
 
         im = X.im
-        bin_im = np.full_like(im, 255, dtype=np.uint8)
-
-        bin_im[im <= self.threshold] = 0.0
 
         if self.pad >= 1:
-            bin_im = np.pad(bin_im, self.pad)
             im = np.pad(im, self.pad)
 
+        _, bin_im = cv2.threshold(im, self.threshold,
+            utils.get_maxvalue(im), cv2.THRESH_BINARY)
 
         contours, _hierarchy = cv2.findContours(
             image=bin_im,

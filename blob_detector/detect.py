@@ -71,8 +71,8 @@ def main(args):
 
     res = img_proc(gray_im)
 
-    # if args.show_intermediate:
-    #     utils.show_intermediate(res, masked=args.show_masked, separate=args.show_separate)
+    if args.show_intermediate:
+        utils.show_intermediate(res, masked=args.show_masked, separate=args.show_separate)
 
     detections = bbox_proc(res)
 
@@ -82,8 +82,9 @@ def main(args):
     fig, ax0 = plt.subplots()
     ax0.imshow(cv2.cvtColor(im, cv2.COLOR_BGR2RGB))
 
-    for idx in detections.indices:
-        bbox = detections.bboxes[idx]
+    for bbox in detections.bboxes:
+        if not bbox.active:
+            continue
         bbox.plot(im, ax=ax0, edgecolor="blue")
 
     plt.show()

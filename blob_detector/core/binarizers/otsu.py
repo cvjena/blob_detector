@@ -17,7 +17,7 @@ class OtsuTresholder(base.BaseThresholder):
     def threshold(self, im: np.ndarray) -> base.ThreshReturn:
         if self._use_cv2:
             thresh, bin_im = cv2.threshold(im, 0, 255,
-                cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+                cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
         else:
             assert SKIMAGE_AVAILABLE, "scikit-image is not installed!"

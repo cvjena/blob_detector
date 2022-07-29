@@ -66,11 +66,18 @@ void preprocess( InputImage image, OutputImage output, double sigma, bool equali
 void binarize( InputImage image, OutputImage output, int windowSize, float C)
 {
     auto maxValue = 255;
-    cv::adaptiveThreshold(image, output,
-        maxValue,
-        cv::ADAPTIVE_THRESH_MEAN_C,
-        cv::THRESH_BINARY_INV,
-        windowSize, C);
+
+    if ( windowSize < 1 )
+        cv::threshold(image, output,
+            0, maxValue,
+            cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
+
+    else
+        cv::adaptiveThreshold(image, output,
+            maxValue,
+            cv::ADAPTIVE_THRESH_MEAN_C,
+            cv::THRESH_BINARY_INV,
+            windowSize, C);
 }
 void binarize( InputImage image, OutputImage output, InputImage mask, int windowSize, float C)
 {

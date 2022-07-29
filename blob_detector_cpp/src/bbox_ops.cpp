@@ -41,7 +41,7 @@ void splitBoxes(InputImage image, const BBoxes &boxes, BBoxes &outputBoxes)
         bbox.crop(image, crop);
 
         preprocess(crop, crop_processed, 2.0, true);
-        binarize(crop_processed, bin_crop, 15);
+        binarize(crop_processed, bin_crop, -1);
         openClose(bin_crop, 5.0, 2);
 
         newBoxes.clear();
@@ -51,6 +51,7 @@ void splitBoxes(InputImage image, const BBoxes &boxes, BBoxes &outputBoxes)
         for (auto _box: newBoxes)
             outputBoxes.push_back(_box.rescale(bbox));
     }
+
 
 }
 

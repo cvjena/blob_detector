@@ -8,7 +8,8 @@ Blob detection algorithms for insects on a single-color (white) screen.
 ## Installation
 
 ```bash
-conda create -n detector python~=3.9.0
+conda create -n detector python~=3.9.0 opencv~=4.5
+conda activate detector
 pip install --upgrade pip
 pip install -r requirements.txt
 ```

@@ -20,14 +20,7 @@ class BaseThresholder(abc.ABC):
         self._use_cv2 = use_cv2
 
     def get_image(self, X: core.ImageWrapper) -> np.ndarray:
-        im = X.im
-
-        if self._use_masked:
-            im = im.copy()
-            mask = X.mask
-            im[mask == 0] = 0
-
-        return im
+        return X.im_masked if self._use_masked else X.im
 
     def __call__(self, X: core.ImageWrapper) -> core.ImageWrapper:
         assert X.im.ndim == 2, "Should be an image with one channel!"

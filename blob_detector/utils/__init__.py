@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+from blob_detector.utils.base import show_intermediate
 from blob_detector.utils.base import get_maxvalue
 from blob_detector.utils.base import int_tuple
 

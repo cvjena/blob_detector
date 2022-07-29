@@ -4,7 +4,6 @@ import typing as T
 
 from blob_detector import core
 from blob_detector.core.bbox import BBox
-from blob_detector.core.bbox_proc.base import Result
 
 
 class Detector:
@@ -13,12 +12,9 @@ class Detector:
         super().__init__()
         self._use_masked = use_masked
 
-    def __call__(self, X: core.ImageWrapper) -> Result:
+    def __call__(self, X: core.ImageWrapper) -> core.DetectionWrapper:
 
-        im = X.im
-
-        if self._use_masked:
-            im = im * X.mask.astype(np.uint8)
+        im = X.im_masked if self._use_masked else X.im
 
         contours, hierarchy = cv2.findContours(im, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contours = sorted(contours, key=cv2.contourArea, reverse=True)
@@ -34,4 +30,4 @@ class Detector:
 
         bboxes = [bbox for bbox in bboxes if 0 not in bbox.size]
 
-        return Result(im, bboxes)
+        return core.DetectionWrapper(X, bboxes, creator="Detector")

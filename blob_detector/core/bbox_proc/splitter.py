@@ -1,12 +1,11 @@
 import numpy as np
 import typing as T
 
+from blob_detector import core
+from blob_detector import utils
 from blob_detector.core.bbox import BBox
 from blob_detector.core.bbox_proc.base import ImageSetter
-from blob_detector.core.bbox_proc.base import Result
 from blob_detector.core.binarizers import BinarizerType
-
-# from matplotlib import pyplot as plt
 
 class Splitter(ImageSetter):
 
@@ -25,44 +24,29 @@ class Splitter(ImageSetter):
         self.detector.detect()
 
 
-    def __call__(self, im: np.ndarray, bboxes: T.List[BBox]) -> Result:
+    def __call__(self, detection: core.DetectionWrapper) -> core.DetectionWrapper:
         self._check_image()
 
-        # fig0, ax0 = plt.subplots()
-        # ax0.imshow(self._im, cmap=plt.cm.gray)
+        new_bboxes = []
 
-        # n_cols = int(np.ceil(np.sqrt(len(bboxes))))
-        # n_rows = int(np.ceil(len(bboxes) / n_cols))
-        # fig, axs = plt.subplots(n_rows, n_cols, squeeze=False)
-
-        result = []
-
-        for i, bbox in enumerate(bboxes):
-            # bbox.plot(self._im, ax0, edgecolor="blue")
+        for i, bbox in enumerate(detection.bboxes):
             # always add the box itself
-            result.append(bbox)
-
-            # ax = axs[np.unravel_index(i, axs.shape)]
+            new_bboxes.append(bbox)
 
             if not bbox.splittable(self._im):
                 continue
 
             orig_crop = bbox.crop(self._im, enlarge = False)
-            # ax.imshow(orig_crop, cmap=plt.cm.gray)
-
             im0 = self.preproc(orig_crop)
-            _im0, new_bboxes = self.detector(im0)
-            for new_bbox in new_bboxes:
-                # new_bbox.plot(orig_crop, ax)
+
+            crop_detection: core.DetectionWrapper = self.detector(im0)
+            for new_bbox in crop_detection.bboxes:
                 # rescale to the relative coordinates of the original image
-                result.append(new_bbox * bbox.size + bbox.origin)
-
-        # for bbox in result:
-        #     bbox.plot(self._im, ax0)
-
-        # plt.show()
-        # plt.close()
+                new_bboxes.append(new_bbox * bbox.size + bbox.origin)
 
         # reset the image attribute
         self._im = None
-        return Result(im, result)
+
+        final_det = detection.copy(creator="Splitter", bboxes=new_bboxes)
+
+        return final_det

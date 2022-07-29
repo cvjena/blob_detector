@@ -2,10 +2,9 @@ import cv2
 import numpy as np
 import typing as T
 
+from blob_detector import core
 from blob_detector.core.bbox import BBox
-from blob_detector.core.bbox_proc.base import FilteredResult
 from blob_detector.core.bbox_proc.base import ImageSetter
-from blob_detector.core.bbox_proc.base import IntegralImage
 
 
 class BBoxFilter(ImageSetter):
@@ -22,14 +21,17 @@ class BBoxFilter(ImageSetter):
         self.nms_threshold = nms_threshold
         self.enlarge = enlarge
 
-    def __call__(self, im: np.ndarray, bboxes: T.List[BBox]):
+    def __call__(self, detection: core.DetectionWrapper) -> core.DetectionWrapper:
         self._check_image()
 
+        im = detection.im
+        bboxes = detection.bboxes
         _im = self._im.astype(np.float64) / 255.
+
 
         # integral_im = IntegralImage(_im)
         # bbox_stats = [integral_im.stats(bbox) for bbox in bboxes]
-        bbox_stats = [None for bbox in bboxes]
+        # bbox_stats = [None for bbox in bboxes]
 
         _bboxes = [[bbox.x0, bbox.y0, bbox.w, bbox.h] for bbox in bboxes]
 
@@ -39,10 +41,11 @@ class BBoxFilter(ImageSetter):
             nms_threshold=self.nms_threshold,
         )
 
-
         if len(inds) != 1:
             inds = inds.squeeze()
 
+
+        nms_det = detection.copy(creator="NMSBoxes", indices=inds)
         inds2 = []
         for i in inds:
             bbox = bboxes[i]
@@ -52,5 +55,9 @@ class BBoxFilter(ImageSetter):
 
             inds2.append(i)
 
-        bboxes = [bbox.enlarge(self.enlarge) for bbox in bboxes]
-        return FilteredResult(im, bboxes, inds2, bbox_stats)
+        valid_det = nms_det.copy(creator="Validation", indices=inds2)
+
+        final_det = valid_det.copy(creator="Enlargement", indices=inds2)
+        final_det.bboxes = [bbox.enlarge(self.enlarge) for bbox in bboxes]
+
+        return final_det

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import typing as T
 
+from blob_detector import core
 from blob_detector import utils
 from blob_detector.core.bbox import BBox
 from blob_detector.core.bbox_proc.base import ImageSetter
@@ -12,14 +13,12 @@ VIS = False
 class ScoreEstimator(ImageSetter):
 
 
-    def __call__(self, im: np.ndarray, bboxes: T.List[BBox], idxs=None, bbox_stats=None):
+    def __call__(self, detection: core.DetectionWrapper) -> core.DetectionWrapper:
+    # def __call__(self, im: np.ndarray, bboxes: T.List[BBox], idxs=None, bbox_stats=None):
         global VIS
         self._check_image()
 
-        if idxs is None:
-            idxs = np.arange(len(bboxes))
-
-        # return [bboxes[i] for i in idxs], None, None
+        scored_det = detection.copy(creator="Scorer")
 
         if VIS:
             fig0, ax0 = plt.subplots()
@@ -34,10 +33,9 @@ class ScoreEstimator(ImageSetter):
                     continue
                 bbox.plot(self._im, ax=ax0, edgecolor="blue")
 
-        scores = []
         labels = None
-        for c, idx in enumerate(idxs):
-            bbox = bboxes[idx]
+        for c, idx in enumerate(scored_det.indices):
+            bbox = scored_det.bboxes[idx]
             crop = bbox.crop(self._im, enlarge=False)
 
             if VIS:
@@ -54,8 +52,7 @@ class ScoreEstimator(ImageSetter):
             offset_bbox = bbox.enlarge((w / W, h / H))
             offset_crop = offset_bbox.crop(self._im, enlarge=False).copy()
             corr = utils._correlate(offset_crop, crop, normalize=True)
-            score = _score(corr)
-            scores.append(score)
+            scored_det.scores[idx] = _score(corr)
 
             if VIS:
                 offset_bbox.plot(self._im, ax=ax0, edgecolor="gray")
@@ -71,8 +68,7 @@ class ScoreEstimator(ImageSetter):
             plt.show()
             plt.close()
 
-        return [bboxes[i] for i in idxs], labels, scores
-
+        return scored_det
 
 def _score(patch):
 

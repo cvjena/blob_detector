@@ -143,8 +143,8 @@ class BBox(T.NamedTuple):
         # translate from relative coordinates to pixel
         # coordinates for the given image
 
-        x0, x1 = max(int(x0 * (W-1)), 0), min(int(x1 * (W-1)), W)
-        y0, y1 = max(int(y0 * (H-1)), 0), min(int(y1 * (H-1)), H)
+        x0, x1 = max(int(x0 * W), 0), min(int(x1 * W), W)
+        y0, y1 = max(int(y0 * H), 0), min(int(y1 * H), H)
 
         return x0, y0, x1, y1
 
@@ -167,7 +167,10 @@ class BBox(T.NamedTuple):
         return im[y0:y1, x0:x1]
 
 
-    def plot(self, im: np.ndarray, ax: T.Optional[plt.Axis] = None, **kwargs) -> plt.Axis:
+    def plot(self, im: np.ndarray, *,
+             score: T.Optional[float] = None,
+             ax: T.Optional[plt.Axis] = None,
+             **kwargs) -> plt.Axis:
         global HAS_PYPLOT, PYPLOT_ERROR
         assert HAS_PYPLOT, f"Could not import pyplot: {PYPLOT_ERROR}"
 

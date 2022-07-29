@@ -44,6 +44,13 @@ class ImageWrapper:
         self.__mask = mask
         assert mask.shape == self.im.shape
 
+    @property
+    def im_masked(self):
+        im = self.im.copy()
+        im[self.mask == 0] = 0
+        return im
+
+
     @mask.setter
     def mask(self, mask):
         if mask is None:

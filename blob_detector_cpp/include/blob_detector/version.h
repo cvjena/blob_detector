@@ -1,7 +1,7 @@
 #pragma once
 #define BLOBDET_VERSION_MAJOR    0
-#define BLOBDET_VERSION_MINOR    1
-#define BLOBDET_VERSION_REVISION 0
+#define BLOBDET_VERSION_MINOR    2
+#define BLOBDET_VERSION_REVISION 2
 
 #define _STR_EXP(__A)  #__A
 #define _STR(__A)      _STR_EXP(__A)

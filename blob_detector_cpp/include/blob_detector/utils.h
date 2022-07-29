@@ -22,7 +22,8 @@ void putText( OutputImage image,
               const cv::Point2d &pos,
               const cv::Scalar &color = cv::Scalar(0),
               int thickness = 1,
-              int lineType = cv::LINE_AA );
+              int lineType = cv::LINE_AA,
+              const double boxAlpha = 0.3 );
 
 int scaledThicknes( int thickness,
                     InputImage im,

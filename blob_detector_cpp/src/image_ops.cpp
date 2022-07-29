@@ -59,7 +59,7 @@ void preprocess( InputImage image, OutputImage output, double sigma, bool equali
     else
         output = image.clone();
 
-    gaussian(image, output, sigma);
+    gaussian(output, output, sigma);
 
 }
 

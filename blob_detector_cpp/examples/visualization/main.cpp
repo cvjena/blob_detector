@@ -111,27 +111,34 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    cv::Mat gray, gray_processed, bin_im;
+    cv::Mat gray, gray_scaled, gray_processed, bin_im;
 
-    // 1.1 BGR -> Gray
+    // 1. BGR -> Gray
     cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-
-    // 1.2 create border mask
-    blob::rescale(gray, 1080);
 
     cv::Mat border;
     // 2. create border mask
     blob::findBorder(gray, border);
+    gray_scaled = gray.clone();
+
+    // 2a rescale both
+    const int minSize = 1080;
+    blob::rescale(gray_scaled, minSize);
+    blob::rescale(border, minSize);
+
 
     // 3. gaussian blur and optional histogram equalization
-    blob::preprocess(gray, gray_processed /* sigma, equalize*/ );
+    const double sigma = 5.0;
+    const bool equalize = false;
+    blob::preprocess(gray_scaled, gray_processed, sigma, equalize );
 
     // 4. binarization (including border information)
     blob::binarize(gray_processed, bin_im, border);
 
     // 4.5 [optional] morphological operations
     // (set parameters to -1 to disable this operation)
-    blob::openClose(bin_im, 5, 2);
+    const int kernelSize = 5, iterations = 2;
+    blob::openClose(bin_im, kernelSize, iterations);
 
     std::vector<blob::BBox> boxes;
     // 5. Detect bounding boxes (including border information)
@@ -143,7 +150,8 @@ int main(int argc, char** argv)
 
     // 7.1. Filter bounding boxes: NMS
     std::vector<int> indices(boxes2.size());
-    blob::nmsBoxes(boxes2, indices, 0.5, 0.3);
+    const double score_threshold = 0.5, nms_threshold = 0.3;
+    blob::nmsBoxes(boxes2, indices, score_threshold, nms_threshold);
 
     // 7.2. Filter bounding boxes: Validation checks
     indices.erase(remove_if(
@@ -152,8 +160,9 @@ int main(int argc, char** argv)
     ), indices.end());
 
     // 8. Enlarge boxes
+    const double enlarge = 0.01;
     for (int i : indices)
-        boxes2[i].enlarge(0.01);
+        boxes2[i].enlarge(enlarge);
 
     // 9. Score boxes
     for (int i : indices)

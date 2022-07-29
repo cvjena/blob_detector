@@ -78,12 +78,14 @@ void putText( OutputImage image,
               const cv::Point2d &pos,
               const cv::Scalar &color,
               int thickness,
-              int lineType )
+              int lineType,
+              const double boxAlpha )
 {
 
     const int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
-    const float fontScale = max(1.0, min(image.cols, image.rows) / (2 * 720.0) );
-    const int textThickness = thickness / 3 * 2;
+    const float scale = 0.75;
+    const float fontScale = max(1.0, min(image.cols, image.rows) / (2 * 720.0) ) * scale;
+    const int textThickness = thickness * scale;
     const int offset = 5 + textThickness;
     int baseline = 0;
 
@@ -93,15 +95,25 @@ void putText( OutputImage image,
     const int marginSize = offset + baseline;
 
     cv::Point textOrigin(image.cols * pos.x, image.rows * pos.y);
-    cv::Point upperLeft = textOrigin + cv::Point(
+    cv::Point upperRight = textOrigin + cv::Point(
         textSize.width + 2*marginSize,
         -textSize.height - 2*marginSize);
 
 
-    cv::rectangle(image, textOrigin, upperLeft, color, thickness, lineType);
+    if (boxAlpha > 0){
+        cv::Mat box = cv::Mat::zeros(image.size(), image.type());
+        cv::rectangle(box,
+            textOrigin,
+            upperRight,
+            color, -1, lineType);
+
+        cv::addWeighted(image, 1, box, boxAlpha, 0, image);
+    }
+
+    cv::rectangle(image, textOrigin, upperRight, color, thickness, lineType);
 
     // cv::circle(image, textOrigin, 10, cv::Scalar(0, 0, 255), -1, lineType);
-    // cv::circle(image, upperLeft, 10, cv::Scalar(0, 0, 255), -1, lineType);
+    // cv::circle(image, upperRight, 10, cv::Scalar(0, 255, 0), -1, lineType);
 
     cv::putText(image,
                 text,

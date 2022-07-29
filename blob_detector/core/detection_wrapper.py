@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import numpy as np
 import typing as T
 
@@ -12,27 +13,25 @@ class DetectionWrapper:
     im: ImageWrapper
     bboxes: T.List[BBox]
 
-    labels: T.Optional[T.List[int]] = None
-    indices: T.Optional[T.List[int]] = None
-    scores: T.Optional[T.List[float]] = None
-
     parent: T.Optional[DetectionWrapper] = None
     creator: T.Optional[str] = None
 
-    def __post_init__(self):
-        if self.indices is None:
-            self.indices = np.arange(len(self.bboxes))
+    def copy(self, *, im = None, bboxes = None, parent = None, creator = None):
+        kwargs = dict(
+            im=im or copy.copy(self.im),
+            bboxes=bboxes or copy.deepcopy(self.bboxes),
+            parent=parent or self,
+            creator=creator,
+        )
 
-        if self.scores is None or len(self.scores) != len(self.bboxes):
-            self.scores = np.zeros(len(self.bboxes), dtype=np.float32)
+        return self.__class__(**kwargs)
 
+    def __len__(self):
+        return len(self.bboxes)
 
-    def copy(self, **kwargs):
-        for attr in ["im", "bboxes", "indices", "score", "labels"]:
-            if attr not in kwargs and getattr(self, attr, None) is not None:
-                kwargs[attr] = getattr(self, attr)
-
-        return self.__class__(parent=self, **kwargs)
+    def select(self, indices):
+        for i, bbox in enumerate(self.bboxes):
+            bbox.active = i in indices
 
     def show(self, ax: T.Optional[plt.Axes] = None, masked: bool = False) -> plt.Axes:
         ax = ax or plt.gca()
@@ -40,15 +39,7 @@ class DetectionWrapper:
         self.im.show(ax, masked=masked)
         ax.set_title(self.creator)
 
-        for i, (bbox, score) in enumerate(zip(self.bboxes, self.scores)):
-            if i in self.indices:
-                color = "blue"
-            elif self.parent is not None and i in self.parent.indices:
-                color = "red"
-            else:
-                continue
-
-            bbox.plot(self.im, score=score, ax=ax, edgecolor=color)
-
+        for bbox in self.bboxes:
+            bbox.plot(self.im, ax=ax)
 
         return ax

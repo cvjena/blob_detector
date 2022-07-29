@@ -9,14 +9,15 @@ from blob_detector.core.binarizers import BinarizerType
 
 class Splitter(ImageSetter):
 
-    def __init__(self, preproc, detector) -> None:
+    def __init__(self, preproc, detector, iou_thresh: float = 0.4) -> None:
         super().__init__()
+
+        self.iou_thresh = iou_thresh
 
         self.preproc = preproc
         # self.preproc.rescale(min_size=300, min_scale=-1)
-        self.preproc.preprocess(sigma=2.0, equalize=True)
-        self.preproc.binarize(type=BinarizerType.gauss_local,
-                              window_size=15, offset=2.0)
+        self.preproc.preprocess(sigma=5.0, equalize=True)
+        self.preproc.binarize(type=BinarizerType.otsu)
 
         self.preproc.open_close(kernel_size=5, iterations=2)
 
@@ -27,11 +28,12 @@ class Splitter(ImageSetter):
     def __call__(self, detection: core.DetectionWrapper) -> core.DetectionWrapper:
         self._check_image()
 
-        new_bboxes = []
+        split_det = detection.copy(creator="Splitter")
 
-        for i, bbox in enumerate(detection.bboxes):
-            # always add the box itself
-            new_bboxes.append(bbox)
+        bboxes = list(split_det.bboxes)
+
+        for i in range(len(split_det)):
+            bbox = split_det.bboxes[i]
 
             if not bbox.splittable(self._im):
                 continue
@@ -42,11 +44,12 @@ class Splitter(ImageSetter):
             crop_detection: core.DetectionWrapper = self.detector(im0)
             for new_bbox in crop_detection.bboxes:
                 # rescale to the relative coordinates of the original image
-                new_bboxes.append(new_bbox * bbox.size + bbox.origin)
+                new_bbox = new_bbox * bbox.size + bbox.origin
+
+                if bbox.iou(new_bbox) < self.iou_thresh:
+                    split_det.bboxes.append(new_bbox)
 
         # reset the image attribute
         self._im = None
 
-        final_det = detection.copy(creator="Splitter", bboxes=new_bboxes)
-
-        return final_det
+        return split_det

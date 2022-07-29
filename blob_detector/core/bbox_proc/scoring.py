@@ -19,23 +19,23 @@ class ScoreEstimator(ImageSetter):
         self._check_image()
 
         scored_det = detection.copy(creator="Scorer")
+        bboxes = [bbox for bbox in scored_det.bboxes if bbox.active]
 
         if VIS:
             fig0, ax0 = plt.subplots()
             ax0.imshow(self._im, cmap=plt.cm.gray)
 
-            n_cols = int(np.ceil(np.sqrt(len(idxs))))
-            n_rows = int(np.ceil(len(idxs) / n_cols))
+            n_cols = int(np.ceil(np.sqrt(len(bboxes))))
+            n_rows = int(np.ceil(len(bboxes) / n_cols))
             fig, axs = plt.subplots(n_rows, n_cols*2, squeeze=False)
 
-            for idx, bbox in enumerate(bboxes):
-                if idx in idxs:
+            for bbox in bboxes:
+                if not bbox.active:
                     continue
                 bbox.plot(self._im, ax=ax0, edgecolor="blue")
 
         labels = None
-        for c, idx in enumerate(scored_det.indices):
-            bbox = scored_det.bboxes[idx]
+        for c, bbox in enumerate(bboxes):
             crop = bbox.crop(self._im, enlarge=False)
 
             if VIS:
@@ -43,16 +43,16 @@ class ScoreEstimator(ImageSetter):
 
                 ax = axs[np.unravel_index(c*2, axs.shape)]
                 ax.imshow(crop, cmap=plt.cm.gray, alpha=0.7)
-                # ax.imshow(self_corr, cmap=plt.cm.jet, alpha=0.3)
 
             h, w, *_ = crop.shape
             H, W, *_ = self._im.shape
 
-            # enlarge in each direction by the bbox size, resulting the tripple extent
+            # enlarge in each direction by the bbox size, resulting in a trippled extent
             offset_bbox = bbox.enlarge((w / W, h / H))
             offset_crop = offset_bbox.crop(self._im, enlarge=False).copy()
             corr = utils._correlate(offset_crop, crop, normalize=True)
-            scored_det.scores[idx] = _score(corr)
+
+            bbox.score = _score(corr)
 
             if VIS:
                 offset_bbox.plot(self._im, ax=ax0, edgecolor="gray")

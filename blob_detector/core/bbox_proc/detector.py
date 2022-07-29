@@ -30,4 +30,4 @@ class Detector:
 
         bboxes = [bbox for bbox in bboxes if 0 not in bbox.size]
 
-        return core.DetectionWrapper(X, bboxes, creator="Detector")
+        return core.DetectionWrapper(im=X, bboxes=bboxes, creator="Detector")

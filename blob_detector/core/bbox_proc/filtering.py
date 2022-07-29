@@ -24,19 +24,12 @@ class BBoxFilter(ImageSetter):
     def __call__(self, detection: core.DetectionWrapper) -> core.DetectionWrapper:
         self._check_image()
 
-        im = detection.im
-        bboxes = detection.bboxes
-        _im = self._im.astype(np.float64) / 255.
+        nms_det = detection.copy(creator="NMSBoxes")
 
-
-        # integral_im = IntegralImage(_im)
-        # bbox_stats = [integral_im.stats(bbox) for bbox in bboxes]
-        # bbox_stats = [None for bbox in bboxes]
-
-        _bboxes = [[bbox.x0, bbox.y0, bbox.w, bbox.h] for bbox in bboxes]
-
+        _bboxes = [bbox.as_rectangle(self._im) for bbox in nms_det.bboxes]
+        _scores = [bbox.score for bbox in nms_det.bboxes]
         inds = cv2.dnn.NMSBoxes(_bboxes,
-            scores=np.ones(len(_bboxes), dtype=np.float32),
+            scores=np.array(_scores),
             score_threshold=self.score_threshold,
             nms_threshold=self.nms_threshold,
         )
@@ -44,20 +37,15 @@ class BBoxFilter(ImageSetter):
         if len(inds) != 1:
             inds = inds.squeeze()
 
+        nms_det.select(inds)
 
-        nms_det = detection.copy(creator="NMSBoxes", indices=inds)
-        inds2 = []
-        for i in inds:
-            bbox = bboxes[i]
+        valid_det = nms_det.copy(creator="Validation")
 
-            if not bbox.is_valid:
-                continue
+        for bbox in valid_det.bboxes:
+            bbox.active = bbox.active and bbox.is_valid
 
-            inds2.append(i)
-
-        valid_det = nms_det.copy(creator="Validation", indices=inds2)
-
-        final_det = valid_det.copy(creator="Enlargement", indices=inds2)
-        final_det.bboxes = [bbox.enlarge(self.enlarge) for bbox in bboxes]
+        final_det = valid_det.copy(creator="Enlargement")
+        final_det.bboxes = [bbox.enlarge(self.enlarge) if bbox.active else bbox
+            for bbox in final_det.bboxes]
 
         return final_det

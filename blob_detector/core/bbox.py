@@ -3,6 +3,8 @@ from __future__ import annotations
 import numpy as np
 import typing as T
 
+from dataclasses import dataclass
+
 try:
     from matplotlib import pyplot as plt
     HAS_PYPLOT, PYPLOT_ERROR = True, None
@@ -10,9 +12,10 @@ except ImportError as e:
     HAS_PYPLOT, PYPLOT_ERROR = False, e
 
 
-class BBox(T.NamedTuple):
+@dataclass
+class BBox:
     VALID_RATIO = 0.1
-    MIN_AREA = 4e-4
+    MIN_AREA = 1e-4
     MAX_AREA = 1/9
 
     x0: float
@@ -20,8 +23,17 @@ class BBox(T.NamedTuple):
     x1: float
     y1: float
 
+    active: bool = True
+    score: float = 1.0
+    label: int = -1
+
+    def __iter__(self):
+        return iter((self.x0, self.y0, self.x1, self.y1))
 
     def splittable(self, im):
+        if not self.active:
+            return False
+
         x0, y0, x1, y1 = self(im)
         w, h = x1 - x0, y1 - y0
         diag = np.sqrt(w**2 + h**2)
@@ -57,11 +69,30 @@ class BBox(T.NamedTuple):
     def ratio(self):
         return min(self.size) / max(self.size)
 
+    def iou(self, other: BBox):
+        # get the coordinates of the intersection
+        I_x0 = max(other.x0, self.x0)
+        I_y0 = max(other.y0, self.y0)
+        I_x1 = min(other.x1, self.x1)
+        I_y1 = min(other.y1, self.y1)
+
+        I_area = (I_x1 - I_x0) * (I_y1 - I_y0)
+
+        U_area = self.area + other.area - I_area
+
+        return I_area / U_area
+
+
     def _new(self, x0, y0, x1, y1) -> BBox:
-        return self._replace(
+        return BBox(
             x0=x0, y0=y0,
             x1=x1, y1=y1,
+            active=self.active,
         )
+
+    def as_rectangle(self, im=None):
+        x0, y0, x1, y1 = self if im is None else self(im)
+        return x0, y0, x1 - x0, y1 - y0
 
     def __check_xy(self, xy) -> T.Tuple[float, float]:
         xy: T.Union[T.Tuple, T.List, float, int]
@@ -168,7 +199,6 @@ class BBox(T.NamedTuple):
 
 
     def plot(self, im: np.ndarray, *,
-             score: T.Optional[float] = None,
              ax: T.Optional[plt.Axis] = None,
              **kwargs) -> plt.Axis:
         global HAS_PYPLOT, PYPLOT_ERROR
@@ -176,6 +206,10 @@ class BBox(T.NamedTuple):
 
         h, w, *_ = im.shape
         box = self * (w, h)
+
+        if "edgecolor" not in kwargs:
+            kwargs["edgecolor"] = "blue" if self.active else "red"
+
         rect = plt.Rectangle(box.origin, *box.size, fill=False, **kwargs)
 
         ax = ax or plt.gca()

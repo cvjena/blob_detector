@@ -44,7 +44,7 @@ def main(args):
         offset=args.C,
         )
 
-    # img_proc.remove_border()
+    img_proc.remove_border()
     img_proc.open_close(
         kernel_size=args.morph_kernel,
         iterations=args.morph_iters)

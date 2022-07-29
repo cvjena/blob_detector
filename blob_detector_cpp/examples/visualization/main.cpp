@@ -141,7 +141,10 @@ int main(int argc, char** argv)
     blob::binarize(gray_processed, bin_im, border);
     // imshow("binarized with border", bin_im);
 
-    // 4.5 [optional] morphological operations
+    // 4.1 [optional] remove border
+    blob::removeBorder(gray_processed, border, gray_processed);
+
+    // 4.2 [optional] morphological operations
     // (set parameters to -1 to disable this operation)
     const int kernelSize = 5, iterations = 2;
     blob::openClose(bin_im, kernelSize, iterations);

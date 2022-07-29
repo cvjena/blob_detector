@@ -8,8 +8,8 @@ namespace blobDet {
 
 void detect(InputImage image, InputImage mask, BBoxes &boxes)
 {
-    cv::Mat masked = cv::Mat::zeros( image.size(), image.type() );
-    image.copyTo(masked, mask);
+    cv::Mat masked;
+    removeBorder(image, mask, masked);
     detect(masked, boxes);
 }
 

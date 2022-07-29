@@ -30,6 +30,10 @@ void binarize( InputImage image,
                const int window_size = 31,
                const float C = 2.0 );
 
+void removeBorder( InputImage image,
+                   InputImage border_mask,
+                   OutputImage output );
+
 void openClose( OutputImage image,
                 int kernel_size = 3,
                 int iterations = 2 );

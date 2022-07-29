@@ -81,10 +81,17 @@ void binarize( InputImage image, OutputImage output, int windowSize, float C)
 }
 void binarize( InputImage image, OutputImage output, InputImage mask, int windowSize, float C)
 {
-    cv::Mat masked = cv::Mat::zeros( image.size(), image.type() );
-    image.copyTo(masked, mask);
+    cv::Mat masked;
+    removeBorder(image, mask, masked);
     binarize(masked, output, windowSize, C);
     output.copyTo(output, mask);
+}
+
+
+void removeBorder( InputImage image, InputImage border_mask, OutputImage output )
+{
+    output = cv::Mat::zeros( image.size(), image.type() );
+    image.copyTo(output, border_mask);
 }
 
 void openClose( OutputImage img, int kernelSize, int iterations)

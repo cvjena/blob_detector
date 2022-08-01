@@ -34,7 +34,7 @@ class BBoxFilter(ImageSetter):
             nms_threshold=self.nms_threshold,
         )
 
-        if len(inds) != 1:
+        if len(inds) != 1 and isinstance(inds, np.ndarray):
             inds = inds.squeeze()
 
         nms_det.select(inds)

@@ -5,16 +5,18 @@ import numpy as np
 import typing as T
 
 from dataclasses import dataclass
+
 from blob_detector.core import ImageWrapper
 from blob_detector.core.bbox import BBox
+from blob_detector.core.wrapper.base import BaseWrapper
 
 @dataclass
-class DetectionWrapper:
+class _DetAttr:
     im: ImageWrapper
     bboxes: T.List[BBox]
 
-    parent: T.Optional[DetectionWrapper] = None
-    creator: T.Optional[str] = None
+@dataclass
+class DetectionWrapper(BaseWrapper, _DetAttr):
 
     def copy(self, *, im = None, bboxes = None, parent = None, creator = None):
         kwargs = dict(

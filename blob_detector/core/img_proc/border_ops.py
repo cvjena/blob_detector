@@ -33,11 +33,16 @@ class BorderFinder:
             mode=cv2.RETR_EXTERNAL,
             method=cv2.CHAIN_APPROX_SIMPLE)
 
-        border = sorted(contours, key=cv2.contourArea, reverse=True)[0]
-        border = cv2.approxPolyDP(border, 100, True)
+        border = sorted(contours, key=cv2.contourArea, reverse=True)
 
-        mask = np.zeros_like(im, dtype=np.float32)
-        cv2.drawContours(mask, [border], -1, 1.0, -1)
+        if border:
+            mask = np.zeros_like(im, dtype=np.float32)
+
+            border = cv2.approxPolyDP(border[0], 100, True)
+            cv2.drawContours(mask, [border], -1, 1.0, -1)
+        else:
+            mask = np.ones_like(im, dtype=np.float32)
+
 
         if self.pad >= 1:
             im = im[self.pad:-self.pad, self.pad:-self.pad]

@@ -7,11 +7,14 @@ import typing as T
 from dataclasses import dataclass
 from matplotlib import pyplot as plt
 
+from blob_detector.core.wrapper.base import BaseWrapper
+
 @dataclass
-class ImageWrapper:
+class _ImAttrs:
     im: np.ndarray
-    parent: T.Optional[ImageWrapper] = None
-    creator: T.Optional[str] = None
+
+@dataclass
+class ImageWrapper(BaseWrapper, _ImAttrs):
     __mask: T.Optional[np.ndarray] = None
 
     def __post_init__(self):

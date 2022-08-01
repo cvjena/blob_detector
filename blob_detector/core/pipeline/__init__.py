@@ -1,4 +1,6 @@
 import numpy as np
+import logging
+import traceback as tb
 import typing as T
 
 from blob_detector import core
@@ -8,10 +10,12 @@ from blob_detector.core import img_proc
 
 
 class Pipeline(object):
-    def __init__(self, require_input: T.Optional[T.List[T.Callable]] = None):
+    def __init__(self, require_input: T.Optional[T.List[T.Callable]] = None,
+                 verbose: bool = False):
         super(Pipeline, self).__init__()
         self._operations = []
         self._require_input = require_input or []
+        self._verbose = verbose
 
     def reset(self):
         self._operations.clear()
@@ -27,27 +31,43 @@ class Pipeline(object):
             res = core.ImageWrapper(im, creator="Input")
 
         for op in self._operations:
-            if isinstance(res, (tuple, list)):
-                res = op(*res)
+            name = self.get_op_name(op)
 
-            elif isinstance(res, (dict)):
-                res = op(**res)
+            try:
+                res = self.call_op(op, res)
+            except Exception as e:
+                logging.warning(f"{name} failed: {str(e)}")
+                if self._verbose:
+                    tb.print_exc()
+                res = res.copy()
+                name = f"{name}\n(failed: {str(e)})"
 
-            else:
-                res = op(res)
-
-            if isinstance(res, core.ImageWrapper):
-                name = None
-
-                if hasattr(op, "__name__"):
-                    name = op.__name__
-
-                elif hasattr(op.__class__, "__name__"):
-                    name = op.__class__.__name__
-
-                res.creator = name
+            finally:
+                if isinstance(res, core.wrapper.base.BaseWrapper):
+                    res.creator = name
 
         return res
+
+    def get_op_name(self, op):
+
+        if hasattr(op, "__name__"):
+            return op.__name__
+
+        elif hasattr(op.__class__, "__name__"):
+            return op.__class__.__name__
+
+        return "Unnamed"
+
+    def call_op(self, op, res):
+        if isinstance(res, (tuple, list)):
+            return op(*res)
+
+        elif isinstance(res, (dict)):
+            return op(**res)
+
+        else:
+            return op(res)
+
 
     def add_operation(self, op: T.Callable):
         assert callable(op), f"{op} is not callable!"

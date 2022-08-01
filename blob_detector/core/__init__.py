@@ -1,4 +1,4 @@
 from blob_detector.core.bbox import BBox
-from blob_detector.core.image_wrapper import ImageWrapper
-from blob_detector.core.detection_wrapper import DetectionWrapper
+from blob_detector.core.wrapper.image import ImageWrapper
+from blob_detector.core.wrapper.detection import DetectionWrapper
 

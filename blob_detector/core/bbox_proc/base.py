@@ -2,8 +2,6 @@ import cv2
 import numpy as np
 import typing as T
 
-from scipy import stats
-
 from blob_detector.core.bbox import BBox
 
 class ImageSetter:

@@ -2,7 +2,7 @@
 
 current_version=$(python setup.py -V)
 
-REPO=${REPO:-pypi}
+REPO=${REPO:-ammod_blob_detector}
 
 echo "Uploading to ${REPO} ..."
 

@@ -1,6 +1,6 @@
 # Blob Detector
 
-Clone me with `git@github.com:cvjena/blob_detector.git`
+Clone me with `git clone git@github.com:cvjena/blob_detector.git`
 
 ## Description
 Blob detection algorithms for insects on a single-color (white) screen.

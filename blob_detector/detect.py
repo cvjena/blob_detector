@@ -1,30 +1,34 @@
 #!/usr/bin/env python
-if __name__ != '__main__': raise Exception("Do not import me!")
+if __name__ != '__main__': raise Exception("Do not import me!")  # noqa: E701
+# ruff: noqa: E402
 
+missing = []
 try:
     from cvargparse import Arg
     from cvargparse import BaseParser
-except ImportError as e:
-    print("Please install cvargparse to use this script:")
-    print("pip install cvargparse~=0.5")
-    exit()
+except ImportError:
+    missing.append("cvargparse~=0.5")
 
 try:
-    import skimage
-except ImportError as e:
-    print("Please install scikit-image to use this script:")
-    print("pip install scikit-image")
+    import skimage # noqa: F401
+except ImportError:
+    missing.append("scikit-image")
+
+try:
+    import PyQt5 # noqa: F401
+except ImportError:
+    missing.append("pyqt5")
+
+if missing:
+    print("Please install additional packages to use this script:")
+    print("pip install " + " ".join(missing))
     exit()
 
-
 import cv2
-import numpy as np
 
 from matplotlib import pyplot as plt
 
 from blob_detector import utils
-from blob_detector.core.bbox import BBox
-from blob_detector.core.bbox_proc import Splitter
 from blob_detector.core.binarizers import BinarizerType
 from blob_detector.core.pipeline import Pipeline
 

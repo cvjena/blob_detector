@@ -5,6 +5,10 @@ from blob_detector.utils.base import show_intermediate
 from blob_detector.utils.base import get_maxvalue
 from blob_detector.utils.base import int_tuple
 
+from blob_detector.utils.filters import _correlate
+from blob_detector.utils.filters import _gaussian
+from blob_detector.utils.filters import _high_pass
+
 def _mask_border(im: np.ndarray, area_thresh: float = 0.50) -> None:
 
     contours, hierarchy = cv2.findContours(im, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -31,6 +35,12 @@ def _mask_border(im: np.ndarray, area_thresh: float = 0.50) -> None:
     return im
 
 
-from blob_detector.utils.filters import _correlate
-from blob_detector.utils.filters import _gaussian
-from blob_detector.utils.filters import _high_pass
+__all__ = [
+    "show_intermediate",
+    "get_maxvalue",
+    "int_tuple",
+    "_correlate",
+    "_gaussian",
+    "_mask_border",
+    "_high_pass",
+]
